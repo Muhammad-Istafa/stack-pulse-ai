@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus, X, ArrowRight, Check, Shield } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { getDeviceId } from "@/lib/deviceId";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +23,6 @@ const toolSchema = z.object({
 });
 
 export default function Onboarding() {
-  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [tools, setTools] = useState<Tool[]>([]);
@@ -31,13 +30,7 @@ export default function Onboarding() {
   const [githubOrg, setGithubOrg] = useState("");
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    if (!loading && !user) navigate("/auth", { replace: true });
-  }, [user, loading, navigate]);
-
-  useEffect(() => {
-    document.title = "Onboarding · Stack Sentinel";
-  }, []);
+  useEffect(() => { document.title = "Onboarding · Stack Sentinel"; }, []);
 
   const addTool = () => {
     const parsed = toolSchema.safeParse(draft);
@@ -54,14 +47,14 @@ export default function Onboarding() {
   const total = tools.reduce((s, t) => s + Number(t.monthly_cost || 0), 0);
 
   const finish = async () => {
-    if (!user) return;
     setBusy(true);
     try {
+      const deviceId = getDeviceId();
       if (githubOrg.trim()) {
-        await supabase.from("profiles").update({ github_org: githubOrg.trim() }).eq("user_id", user.id);
+        await supabase.from("profiles").upsert({ user_id: deviceId, email: "anonymous@local", github_org: githubOrg.trim() }, { onConflict: "user_id" });
       }
       if (tools.length) {
-        const rows = tools.map((t) => ({ ...t, user_id: user.id }));
+        const rows = tools.map((t) => ({ ...t, user_id: deviceId }));
         const { error } = await supabase.from("stack_tools").insert(rows);
         if (error) throw error;
       }

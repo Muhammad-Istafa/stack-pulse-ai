@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, ExternalLink, Inbox } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
-import { useAuth } from "@/hooks/useAuth";
+import { getDeviceId } from "@/lib/deviceId";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,7 +33,6 @@ function costBadge(impact: Update["cost_impact"]) {
 }
 
 export default function Dashboard() {
-  const { user } = useAuth();
   const [updates, setUpdates] = useState<Update[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,17 +40,17 @@ export default function Dashboard() {
   useEffect(() => { document.title = "Dashboard · Stack Sentinel"; }, []);
 
   useEffect(() => {
-    if (!user) return;
+    const deviceId = getDeviceId();
     (async () => {
       const [{ data: u }, { data: t }] = await Promise.all([
-        supabase.from("updates").select("*").eq("user_id", user.id).order("urgency_score", { ascending: false }).order("created_at", { ascending: false }),
-        supabase.from("stack_tools").select("id, tool_name, monthly_cost").eq("user_id", user.id),
+        supabase.from("updates").select("*").eq("user_id", deviceId).order("urgency_score", { ascending: false }).order("created_at", { ascending: false }),
+        supabase.from("stack_tools").select("id, tool_name, monthly_cost").eq("user_id", deviceId),
       ]);
       setUpdates((u as Update[]) ?? []);
       setTools((t as Tool[]) ?? []);
       setLoading(false);
     })();
-  }, [user]);
+  }, []);
 
   const top = updates.slice(0, 2);
   const rest = updates.slice(2);

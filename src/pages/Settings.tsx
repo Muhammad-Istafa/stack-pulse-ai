@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { RefreshCw, Sparkles } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
-import { useAuth } from "@/hooks/useAuth";
+import { getDeviceId } from "@/lib/deviceId";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,17 +10,17 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export default function Settings() {
-  const { user } = useAuth();
   const [fetching, setFetching] = useState(false);
   const [weekly, setWeekly] = useState(true);
 
   useEffect(() => { document.title = "Settings · Stack Sentinel"; }, []);
 
   const fetchUpdates = async () => {
-    if (!user) return;
     setFetching(true);
     try {
-      const { data, error } = await supabase.functions.invoke("fetch-updates", { body: {} });
+      const { data, error } = await supabase.functions.invoke("fetch-updates", {
+        body: { user_id: getDeviceId() },
+      });
       if (error) throw error;
       toast.success(`Saved ${data?.saved ?? 0} new updates`);
     } catch (e: any) {
