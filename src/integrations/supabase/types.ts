@@ -44,6 +44,90 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_events: {
+        Row: {
+          created_at: string
+          detail: string | null
+          device_id: string
+          id: string
+          scheduled_for: string
+          source: string | null
+          status: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: string | null
+          device_id: string
+          id?: string
+          scheduled_for: string
+          source?: string | null
+          status?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          detail?: string | null
+          device_id?: string
+          id?: string
+          scheduled_for?: string
+          source?: string | null
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      emails: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          detected_intent: string | null
+          detected_sources: string[] | null
+          detected_urgency: string | null
+          device_id: string
+          id: string
+          importance: string
+          received_at: string
+          sender_email: string
+          sender_name: string
+          status: string
+          subject: string
+        }
+        Insert: {
+          body: string
+          category?: string
+          created_at?: string
+          detected_intent?: string | null
+          detected_sources?: string[] | null
+          detected_urgency?: string | null
+          device_id: string
+          id?: string
+          importance?: string
+          received_at?: string
+          sender_email: string
+          sender_name: string
+          status?: string
+          subject: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          detected_intent?: string | null
+          detected_sources?: string[] | null
+          detected_urgency?: string | null
+          device_id?: string
+          id?: string
+          importance?: string
+          received_at?: string
+          sender_email?: string
+          sender_name?: string
+          status?: string
+          subject?: string
+        }
+        Relationships: []
+      }
       ops_tasks: {
         Row: {
           context: Json | null
@@ -74,6 +158,110 @@ export type Database = {
           prompt?: string
           status?: Database["public"]["Enums"]["task_status"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      tech_analyses: {
+        Row: {
+          ab_test: Json | null
+          code_impact: Json | null
+          created_at: string
+          decision: string | null
+          device_id: string
+          feed_id: string | null
+          id: string
+          migration_plan: string | null
+          prompt: string | null
+          sandbox: Json | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          ab_test?: Json | null
+          code_impact?: Json | null
+          created_at?: string
+          decision?: string | null
+          device_id: string
+          feed_id?: string | null
+          id?: string
+          migration_plan?: string | null
+          prompt?: string | null
+          sandbox?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          ab_test?: Json | null
+          code_impact?: Json | null
+          created_at?: string
+          decision?: string | null
+          device_id?: string
+          feed_id?: string | null
+          id?: string
+          migration_plan?: string | null
+          prompt?: string | null
+          sandbox?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_analyses_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "tech_feed"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_feed: {
+        Row: {
+          adoption: string | null
+          created_at: string
+          detected_at: string
+          device_id: string
+          github_stars: number | null
+          id: string
+          potential_savings_pct: number | null
+          relevance_score: number | null
+          source: string
+          stability: string | null
+          status: string
+          summary: string
+          title: string
+          vendor: string | null
+        }
+        Insert: {
+          adoption?: string | null
+          created_at?: string
+          detected_at?: string
+          device_id: string
+          github_stars?: number | null
+          id?: string
+          potential_savings_pct?: number | null
+          relevance_score?: number | null
+          source: string
+          stability?: string | null
+          status?: string
+          summary: string
+          title: string
+          vendor?: string | null
+        }
+        Update: {
+          adoption?: string | null
+          created_at?: string
+          detected_at?: string
+          device_id?: string
+          github_stars?: number | null
+          id?: string
+          potential_savings_pct?: number | null
+          relevance_score?: number | null
+          source?: string
+          stability?: string | null
+          status?: string
+          summary?: string
+          title?: string
+          vendor?: string | null
         }
         Relationships: []
       }
@@ -112,6 +300,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      workflows: {
+        Row: {
+          created_at: string
+          device_id: string
+          email_id: string | null
+          error_message: string | null
+          final_output: string | null
+          id: string
+          problem: string
+          status: string
+          steps: Json
+          trigger: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          email_id?: string | null
+          error_message?: string | null
+          final_output?: string | null
+          id?: string
+          problem: string
+          status?: string
+          steps?: Json
+          trigger: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          email_id?: string | null
+          error_message?: string | null
+          final_output?: string | null
+          id?: string
+          problem?: string
+          status?: string
+          steps?: Json
+          trigger?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflows_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
