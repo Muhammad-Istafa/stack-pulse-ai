@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Cpu, Loader2, RefreshCw, Check, X, FlaskConical, GitBranch, BarChart3, Star, Code2, Sparkles, TrendingDown, Zap, ShieldCheck, Rocket, ArrowRight } from "lucide-react";
+import { Cpu, Loader2, RefreshCw, Check, X, FlaskConical, GitBranch, BarChart3, Star, Code2, Sparkles, TrendingDown, Zap, ShieldCheck, Rocket, ArrowRight, ExternalLink, Brain, ShieldAlert } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
