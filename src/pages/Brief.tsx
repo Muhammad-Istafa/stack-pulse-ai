@@ -53,6 +53,12 @@ export default function Brief() {
           <p className="text-sm text-muted-foreground mt-1">{actionEmails.length} pending tasks · {feed.filter(f => (f.relevance_score ?? 0) >= 70).length} high-relevance tech opportunities</p>
         </header>
 
+        {/* Risk + Time Saved */}
+        <section className="grid lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2"><RiskMeter /></div>
+          <div className="lg:col-span-1"><TimeSavedCard /></div>
+        </section>
+
         {/* Critical actions */}
         <section>
           <div className="flex items-center gap-2 mb-3">
