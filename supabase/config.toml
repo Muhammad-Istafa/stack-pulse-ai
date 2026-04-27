@@ -1,1 +1,4 @@
 project_id = "fnfdtdcutyvlxwglmpfg"
+
+[functions.fetch-updates]
+verify_jwt = false

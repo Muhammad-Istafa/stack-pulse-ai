@@ -2,21 +2,20 @@ import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { getDeviceId } from "@/lib/deviceId";
 import { Card } from "@/components/ui/card";
 
 type Update = { id: string; tool_name: string; title: string; summary: string; created_at: string; urgency_score: number };
 
 export default function History() {
-  const { user } = useAuth();
   const [items, setItems] = useState<Update[]>([]);
 
   useEffect(() => { document.title = "Digest History · Stack Sentinel"; }, []);
   useEffect(() => {
-    if (!user) return;
-    supabase.from("updates").select("*").eq("user_id", user.id).order("created_at", { ascending: false })
+    const deviceId = getDeviceId();
+    supabase.from("updates").select("*").eq("user_id", deviceId).order("created_at", { ascending: false })
       .then(({ data }) => setItems((data as Update[]) ?? []));
-  }, [user]);
+  }, []);
 
   // group by date
   const groups: Record<string, Update[]> = {};

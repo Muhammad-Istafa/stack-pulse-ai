@@ -3,7 +3,7 @@ import { Plus, Trash2, Pencil } from "lucide-react";
 import { format } from "date-fns";
 import { z } from "zod";
 import AppLayout from "@/components/AppLayout";
-import { useAuth } from "@/hooks/useAuth";
+import { getDeviceId } from "@/lib/deviceId";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,6 @@ const schema = z.object({
 });
 
 export default function MyStack() {
-  const { user } = useAuth();
   const [tools, setTools] = useState<Tool[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Tool | null>(null);
@@ -34,11 +33,11 @@ export default function MyStack() {
   useEffect(() => { document.title = "My Stack · Stack Sentinel"; }, []);
 
   const load = async () => {
-    if (!user) return;
-    const { data } = await supabase.from("stack_tools").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
+    const deviceId = getDeviceId();
+    const { data } = await supabase.from("stack_tools").select("*").eq("user_id", deviceId).order("created_at", { ascending: false });
     setTools((data as Tool[]) ?? []);
   };
-  useEffect(() => { load(); }, [user]);
+  useEffect(() => { load(); }, []);
 
   const total = tools.reduce((s, t) => s + Number(t.monthly_cost || 0), 0);
 
@@ -46,7 +45,6 @@ export default function MyStack() {
   const openEdit = (t: Tool) => { setEditing(t); setForm({ tool_name: t.tool_name, category: t.category, monthly_cost: Number(t.monthly_cost) }); setOpen(true); };
 
   const save = async () => {
-    if (!user) return;
     const parsed = schema.safeParse(form);
     if (!parsed.success) { toast.error("Invalid input"); return; }
     const row = { tool_name: parsed.data.tool_name, category: parsed.data.category, monthly_cost: parsed.data.monthly_cost };
@@ -55,7 +53,7 @@ export default function MyStack() {
       if (error) return toast.error(error.message);
       toast.success("Updated");
     } else {
-      const { error } = await supabase.from("stack_tools").insert([{ ...row, user_id: user.id }]);
+      const { error } = await supabase.from("stack_tools").insert([{ ...row, user_id: getDeviceId() }]);
       if (error) return toast.error(error.message);
       toast.success("Added");
     }
