@@ -4,11 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
-import Onboarding from "./pages/Onboarding.tsx";
-import Dashboard from "./pages/Dashboard.tsx";
-import MyStack from "./pages/MyStack.tsx";
-import History from "./pages/History.tsx";
-import Settings from "./pages/Settings.tsx";
+import Brief from "./pages/Brief.tsx";
+import Ops from "./pages/Ops.tsx";
+import Tech from "./pages/Tech.tsx";
+import Activity from "./pages/Activity.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -21,11 +20,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/stack" element={<MyStack />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/brief" element={<Brief />} />
+          <Route path="/ops" element={<Ops />} />
+          <Route path="/tech" element={<Tech />} />
+          <Route path="/activity" element={<Activity />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
