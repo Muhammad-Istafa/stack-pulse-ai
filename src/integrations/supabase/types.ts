@@ -50,6 +50,8 @@ export type Database = {
           detail: string | null
           device_id: string
           id: string
+          priority: string
+          rescheduled_from: string | null
           scheduled_for: string
           source: string | null
           status: string
@@ -60,6 +62,8 @@ export type Database = {
           detail?: string | null
           device_id: string
           id?: string
+          priority?: string
+          rescheduled_from?: string | null
           scheduled_for: string
           source?: string | null
           status?: string
@@ -70,6 +74,8 @@ export type Database = {
           detail?: string | null
           device_id?: string
           id?: string
+          priority?: string
+          rescheduled_from?: string | null
           scheduled_for?: string
           source?: string | null
           status?: string
@@ -207,6 +213,7 @@ export type Database = {
         Row: {
           ab_test: Json | null
           code_impact: Json | null
+          confidence: number | null
           created_at: string
           decision: string | null
           device_id: string
@@ -214,13 +221,17 @@ export type Database = {
           id: string
           migration_plan: string | null
           prompt: string | null
+          rationale: string | null
+          risk_level: string | null
           sandbox: Json | null
+          sources: Json | null
           status: string
           updated_at: string
         }
         Insert: {
           ab_test?: Json | null
           code_impact?: Json | null
+          confidence?: number | null
           created_at?: string
           decision?: string | null
           device_id: string
@@ -228,13 +239,17 @@ export type Database = {
           id?: string
           migration_plan?: string | null
           prompt?: string | null
+          rationale?: string | null
+          risk_level?: string | null
           sandbox?: Json | null
+          sources?: Json | null
           status?: string
           updated_at?: string
         }
         Update: {
           ab_test?: Json | null
           code_impact?: Json | null
+          confidence?: number | null
           created_at?: string
           decision?: string | null
           device_id?: string
@@ -242,7 +257,10 @@ export type Database = {
           id?: string
           migration_plan?: string | null
           prompt?: string | null
+          rationale?: string | null
+          risk_level?: string | null
           sandbox?: Json | null
+          sources?: Json | null
           status?: string
           updated_at?: string
         }

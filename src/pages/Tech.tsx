@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Cpu, Loader2, RefreshCw, Check, X, FlaskConical, GitBranch, BarChart3, Star, Code2, Sparkles, TrendingDown, Zap, ShieldCheck, Rocket, ArrowRight } from "lucide-react";
+import { Cpu, Loader2, RefreshCw, Check, X, FlaskConical, GitBranch, BarChart3, Star, Code2, Sparkles, TrendingDown, Zap, ShieldCheck, Rocket, ArrowRight, ExternalLink, Brain, ShieldAlert } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getDeviceId } from "@/lib/deviceId";
 import { logActivity } from "@/lib/activity";
 import { toast } from "@/hooks/use-toast";
+import SimulationBadge from "@/components/SimulationBadge";
 import { format } from "date-fns";
 
 type FeedItem = {
@@ -27,6 +28,10 @@ type Analysis = {
   ab_test?: any;
   decision?: string;
   status?: string;
+  confidence?: number;
+  risk_level?: string;
+  sources?: Array<{ type: string; title: string; url: string; why_it_matters: string }>;
+  rationale?: string;
 };
 
 const SOURCE_LABEL: Record<string, string> = { model_release: "Model release", pricing: "Pricing", github_trend: "GitHub trend" };
@@ -70,14 +75,17 @@ export default function Tech() {
     setAnalysis(null);
     const { data } = await supabase.from("tech_analyses")
       .select("*").eq("feed_id", it.id).maybeSingle();
-    if (data) setAnalysis(data as Analysis);
+    if (data) setAnalysis(data as unknown as Analysis);
   }
 
-  async function runAction(action: "sandbox" | "code_impact" | "migration" | "ab_test") {
+  async function runAction(action: "sandbox" | "code_impact" | "migration" | "ab_test" | "decision_panel") {
     if (!selected) return;
     setLoading(action);
     try {
-      const { data, error } = await supabase.functions.invoke("tech-agent", { body: { action, item: selected } });
+      const reqBody = action === "decision_panel"
+        ? { action, item: selected, analysis }
+        : { action, item: selected };
+      const { data, error } = await supabase.functions.invoke("tech-agent", { body: reqBody });
       if (error || data?.error) throw new Error(data?.error ?? error?.message);
 
       let next: Analysis = { ...(analysis ?? {}), feed_id: selected.id };
@@ -85,6 +93,12 @@ export default function Tech() {
       if (action === "code_impact") next.code_impact = data;
       if (action === "migration") next.migration_plan = data.migration_plan;
       if (action === "ab_test") { next.ab_test = data; next.status = "ab_running"; }
+      if (action === "decision_panel") {
+        next.confidence = data.confidence;
+        next.risk_level = data.risk_level;
+        next.sources = data.sources;
+        next.rationale = data.rationale;
+      }
 
       // upsert
       if (next.id) {
@@ -211,12 +225,59 @@ export default function Tech() {
                 </Card>
 
                 {/* Action toolbar */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                   <ActionBtn icon={FlaskConical} label="Sandbox test" onClick={() => runAction("sandbox")} loading={loading === "sandbox"} done={!!analysis?.sandbox} />
                   <ActionBtn icon={Code2} label="Code impact" onClick={() => runAction("code_impact")} loading={loading === "code_impact"} done={!!analysis?.code_impact} />
                   <ActionBtn icon={GitBranch} label="Migration plan" onClick={() => runAction("migration")} loading={loading === "migration"} done={!!analysis?.migration_plan} />
                   <ActionBtn icon={BarChart3} label="A/B test" onClick={() => runAction("ab_test")} loading={loading === "ab_test"} done={!!analysis?.ab_test} />
+                  <ActionBtn icon={Brain} label="Decision panel" onClick={() => runAction("decision_panel")} loading={loading === "decision_panel"} done={!!analysis?.rationale} />
                 </div>
+
+                {analysis?.rationale && (
+                  <Card className="shadow-card overflow-hidden">
+                    <SectionHead
+                      icon={<Brain className="h-4 w-4 text-primary" />}
+                      label="Decision panel · transparent recommendation"
+                      trailing={
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className={`text-[10px] uppercase ${analysis.risk_level === "high" ? "border-destructive/40 text-destructive" : analysis.risk_level === "low" ? "border-success/40 text-success" : "border-warning/40 text-warning"}`}>
+                            <ShieldAlert className="h-2.5 w-2.5 mr-1" /> Risk: {analysis.risk_level}
+                          </Badge>
+                          <Badge className="bg-primary/15 text-primary border-primary/30 text-[10px]">
+                            Confidence: {analysis.confidence}%
+                          </Badge>
+                        </div>
+                      }
+                    />
+                    <div className="p-5 space-y-4">
+                      <p className="text-sm leading-relaxed">{analysis.rationale}</p>
+                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-700 ${(analysis.confidence ?? 0) >= 70 ? "bg-success" : (analysis.confidence ?? 0) >= 40 ? "bg-warning" : "bg-destructive"}`}
+                          style={{ width: `${Math.min(100, Math.max(0, analysis.confidence ?? 0))}%` }}
+                        />
+                      </div>
+                      {analysis.sources && analysis.sources.length > 0 && (
+                        <div>
+                          <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Sources cited</div>
+                          <ul className="space-y-2">
+                            {analysis.sources.map((s, i) => (
+                              <li key={i} className="rounded border border-border p-3 text-sm">
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className="text-[9px] uppercase">{s.type.replace("_", " ")}</Badge>
+                                  <a href={s.url} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline inline-flex items-center gap-1">
+                                    {s.title} <ExternalLink className="h-3 w-3" />
+                                  </a>
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1">{s.why_it_matters}</div>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                )}
 
                 {/* Sandbox */}
                 {analysis?.sandbox && (
