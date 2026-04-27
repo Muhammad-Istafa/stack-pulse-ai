@@ -1,16 +1,10 @@
 import { useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Shield, Zap, TrendingUp, Bell } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
 export default function Index() {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!loading && user) navigate("/dashboard", { replace: true });
-  }, [user, loading, navigate]);
+  useEffect(() => { document.title = "Stack Sentinel · AI tech intelligence"; }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -22,7 +16,7 @@ export default function Index() {
             </div>
             <span className="font-semibold tracking-tight">Stack Sentinel</span>
           </div>
-          <Link to="/auth"><Button size="sm">Sign in</Button></Link>
+          <Link to="/dashboard"><Button size="sm">Open app</Button></Link>
         </div>
       </header>
 
@@ -39,7 +33,7 @@ export default function Index() {
             Stack Sentinel watches your tech stack 24/7 and surfaces only the updates that matter — pricing changes, security alerts, and cost-saving alternatives.
           </p>
           <div className="mt-8 flex justify-center gap-3">
-            <Link to="/auth"><Button size="lg" className="bg-primary-gradient shadow-glow">Get started free</Button></Link>
+            <Link to="/onboarding"><Button size="lg" className="bg-primary-gradient shadow-glow">Get started</Button></Link>
           </div>
         </section>
 
