@@ -379,6 +379,13 @@ export default function Ops() {
           </section>
         </div>
       </div>
+      <GmailSendDialog
+        open={gmailOpen}
+        onOpenChange={setGmailOpen}
+        draft={draft}
+        defaultTo={selected?.sender_email ?? "founder@example.com"}
+        onSent={handleGmailSent}
+      />
     </AppLayout>
   );
 }
