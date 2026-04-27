@@ -430,7 +430,7 @@ export default function Ops() {
   );
 }
 
-function WorkflowResult({ workflow, editing, setEditing, draft, setDraft, loading, onApprove, onRegenerate }: any) {
+function WorkflowResult({ workflow, editing, setEditing, draft, setDraft, loading, onApprove, onRegenerate, onRegenerateImproved }: any) {
   return (
     <div className="space-y-4">
       <Card className="p-5 shadow-card">
