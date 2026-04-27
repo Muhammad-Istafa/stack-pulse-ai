@@ -13,6 +13,11 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        serif: ['"Cormorant Garamond"', "Georgia", "serif"],
+        display: ['"Josefin Sans"', "sans-serif"],
+        sans: ['"Cormorant Garamond"', "Georgia", "serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
