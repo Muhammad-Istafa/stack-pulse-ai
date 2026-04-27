@@ -225,12 +225,59 @@ export default function Tech() {
                 </Card>
 
                 {/* Action toolbar */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                   <ActionBtn icon={FlaskConical} label="Sandbox test" onClick={() => runAction("sandbox")} loading={loading === "sandbox"} done={!!analysis?.sandbox} />
                   <ActionBtn icon={Code2} label="Code impact" onClick={() => runAction("code_impact")} loading={loading === "code_impact"} done={!!analysis?.code_impact} />
                   <ActionBtn icon={GitBranch} label="Migration plan" onClick={() => runAction("migration")} loading={loading === "migration"} done={!!analysis?.migration_plan} />
                   <ActionBtn icon={BarChart3} label="A/B test" onClick={() => runAction("ab_test")} loading={loading === "ab_test"} done={!!analysis?.ab_test} />
+                  <ActionBtn icon={Brain} label="Decision panel" onClick={() => runAction("decision_panel")} loading={loading === "decision_panel"} done={!!analysis?.rationale} />
                 </div>
+
+                {analysis?.rationale && (
+                  <Card className="shadow-card overflow-hidden">
+                    <SectionHead
+                      icon={<Brain className="h-4 w-4 text-primary" />}
+                      label="Decision panel · transparent recommendation"
+                      trailing={
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className={`text-[10px] uppercase ${analysis.risk_level === "high" ? "border-destructive/40 text-destructive" : analysis.risk_level === "low" ? "border-success/40 text-success" : "border-warning/40 text-warning"}`}>
+                            <ShieldAlert className="h-2.5 w-2.5 mr-1" /> Risk: {analysis.risk_level}
+                          </Badge>
+                          <Badge className="bg-primary/15 text-primary border-primary/30 text-[10px]">
+                            Confidence: {analysis.confidence}%
+                          </Badge>
+                        </div>
+                      }
+                    />
+                    <div className="p-5 space-y-4">
+                      <p className="text-sm leading-relaxed">{analysis.rationale}</p>
+                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-700 ${(analysis.confidence ?? 0) >= 70 ? "bg-success" : (analysis.confidence ?? 0) >= 40 ? "bg-warning" : "bg-destructive"}`}
+                          style={{ width: `${Math.min(100, Math.max(0, analysis.confidence ?? 0))}%` }}
+                        />
+                      </div>
+                      {analysis.sources && analysis.sources.length > 0 && (
+                        <div>
+                          <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Sources cited</div>
+                          <ul className="space-y-2">
+                            {analysis.sources.map((s, i) => (
+                              <li key={i} className="rounded border border-border p-3 text-sm">
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className="text-[9px] uppercase">{s.type.replace("_", " ")}</Badge>
+                                  <a href={s.url} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline inline-flex items-center gap-1">
+                                    {s.title} <ExternalLink className="h-3 w-3" />
+                                  </a>
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1">{s.why_it_matters}</div>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                )}
 
                 {/* Sandbox */}
                 {analysis?.sandbox && (
