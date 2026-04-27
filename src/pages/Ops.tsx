@@ -160,7 +160,12 @@ export default function Ops() {
     } finally { setLoading(""); }
   }
 
-  async function approveAndSend() {
+  function approveAndSend() {
+    if (!workflow || !draft) return;
+    setGmailOpen(true);
+  }
+
+  async function handleGmailSent(payload: GmailPayload) {
     if (!workflow) return;
     setLoading("approve");
     try {
@@ -174,7 +179,23 @@ export default function Ops() {
         setEmails(prev => prev.map(x => x.id === selected.id ? { ...x, status: "completed" } : x));
       }
 
-      await logActivity("ops", "approved", workflow.problem, draft.slice(0, 240));
+      const detail = [
+        `📧 Sent via Gmail (simulated)`,
+        ``,
+        `From:    ${payload.from}`,
+        `To:      ${payload.to}`,
+        payload.cc ? `Cc:      ${payload.cc}` : null,
+        `Subject: ${payload.subject}`,
+        `Sent:    ${new Date(payload.sent_at).toLocaleString()}`,
+        `Latency: ${payload.latency_ms}ms · Size: ${payload.size_kb}kb`,
+        `Message-ID: ${payload.message_id}`,
+        `Thread-ID:  ${payload.thread_id}`,
+        ``,
+        `--- Body ---`,
+        payload.body,
+      ].filter(Boolean).join("\n");
+
+      await logActivity("ops", "approved", `Gmail → ${payload.to}: ${payload.subject}`, detail);
 
       // Calendar suggestion
       const { data: cal } = await supabase.functions.invoke("ops-agent", {
@@ -192,7 +213,7 @@ export default function Ops() {
         });
         toast({ title: "Sent · calendar follow-up suggested", description: cal.title });
       } else {
-        toast({ title: "Email sent", description: "Logged to activity feed." });
+        toast({ title: "Email sent via Gmail", description: `Delivered to ${payload.to}` });
       }
       setWorkflow(prev => prev ? { ...prev, status: "sent" } : prev);
     } catch (err: any) {
