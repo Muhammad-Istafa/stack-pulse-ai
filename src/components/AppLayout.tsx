@@ -1,9 +1,10 @@
 import { ReactNode, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { LayoutDashboard, Briefcase, Cpu, Activity, Sparkles, Calendar as CalendarIcon, Plug, FlaskConical, Check } from "lucide-react";
+import { LayoutDashboard, Briefcase, Cpu, Activity, Sparkles, Calendar as CalendarIcon, Plug, FlaskConical, Check, Boxes } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMode } from "@/lib/mode";
 import ConnectGoogleDialog from "@/components/ConnectGoogleDialog";
+import IntegrationsDialog from "@/components/IntegrationsDialog";
 
 const NAV = [
   { to: "/brief", label: "Daily Brief", icon: LayoutDashboard },
@@ -14,8 +15,10 @@ const NAV = [
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
-  const { connection } = useMode();
+  const { connection, integrations } = useMode();
   const [open, setOpen] = useState(false);
+  const [intOpen, setIntOpen] = useState(false);
+  const connectedCount = Object.values(integrations).filter(i => i.connected).length;
 
   return (
     <div className="min-h-screen flex bg-background text-foreground">
@@ -78,6 +81,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               <Plug className="h-3.5 w-3.5" /> Connect Google
             </Button>
           )}
+          <Button size="sm" variant="ghost" className="w-full justify-start" onClick={() => setIntOpen(true)}>
+            <Boxes className="h-3.5 w-3.5" /> Integrations
+            <span className="ml-auto text-[10px] text-muted-foreground">{connectedCount}/10</span>
+          </Button>
         </div>
 
         <div className="p-3 border-t border-sidebar-border text-[11px] text-muted-foreground">
@@ -90,6 +97,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       </div>
 
       <ConnectGoogleDialog open={open} onOpenChange={setOpen} />
+      <IntegrationsDialog open={intOpen} onOpenChange={setIntOpen} />
     </div>
   );
 }
