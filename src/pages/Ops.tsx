@@ -60,6 +60,7 @@ export default function Ops() {
   const [manualPrompt, setManualPrompt] = useState("Prepare onboarding email for new client");
   const [tab, setTab] = useState("inbox");
   const [gmailOpen, setGmailOpen] = useState(false);
+  const [commitRefresh, setCommitRefresh] = useState(0);
 
   useEffect(() => { document.title = "Ops Agent · FounderOS"; }, []);
 
