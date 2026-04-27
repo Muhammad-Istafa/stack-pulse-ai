@@ -20,24 +20,20 @@ Deno.serve(async (req) => {
 
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    // verify user from JWT
-    const authHeader = req.headers.get("Authorization") ?? "";
-    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: { user }, error: userErr } = await userClient.auth.getUser();
-    if (userErr || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    // Public app — caller passes their device id in the body
+    const body = await req.json().catch(() => ({}));
+    const userId = body?.user_id;
+    if (!userId || typeof userId !== "string") {
+      return new Response(JSON.stringify({ error: "Missing user_id" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    const { data: tools } = await admin.from("stack_tools").select("tool_name, monthly_cost").eq("user_id", user.id);
+    const { data: tools } = await admin.from("stack_tools").select("tool_name, monthly_cost").eq("user_id", userId);
     if (!tools || tools.length === 0) {
       return new Response(JSON.stringify({ error: "No stack tools found" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
@@ -156,7 +152,7 @@ Deno.serve(async (req) => {
     }
 
     const rows = relevant.map((r) => ({
-      user_id: user.id,
+      user_id: userId,
       tool_name: String(r.tool_name).slice(0, 100),
       title: String(r.title).slice(0, 300),
       summary: String(r.summary).slice(0, 1000),
