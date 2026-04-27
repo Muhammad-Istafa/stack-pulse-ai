@@ -54,7 +54,7 @@ export default function MyStack() {
       if (error) return toast.error(error.message);
       toast.success("Updated");
     } else {
-      const { error } = await supabase.from("stack_tools").insert({ ...parsed.data, user_id: user.id });
+      const { error } = await supabase.from("stack_tools").insert([{ ...parsed.data, user_id: user.id }]);
       if (error) return toast.error(error.message);
       toast.success("Added");
     }
