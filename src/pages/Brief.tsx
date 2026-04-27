@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { getDeviceId } from "@/lib/deviceId";
 import { seedIfEmpty } from "@/lib/seed";
+import RiskMeter from "@/components/RiskMeter";
+import TimeSavedCard from "@/components/TimeSavedCard";
 import { format, formatDistanceToNow } from "date-fns";
 
 type ActivityRow = { id: string; agent: string; action: string; title: string; detail: string | null; created_at: string };
