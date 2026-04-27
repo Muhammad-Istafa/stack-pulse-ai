@@ -14,6 +14,7 @@ import { logActivity } from "@/lib/activity";
 import { seedIfEmpty } from "@/lib/seed";
 import { toast } from "@/hooks/use-toast";
 import { WorkflowDiagram, type WorkflowStep } from "@/components/WorkflowDiagram";
+import { GmailSendDialog, type GmailPayload } from "@/components/GmailSendDialog";
 import { format } from "date-fns";
 
 type EmailRow = {
