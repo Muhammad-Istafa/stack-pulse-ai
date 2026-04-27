@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getDeviceId } from "@/lib/deviceId";
 import { logActivity } from "@/lib/activity";
 import { toast } from "@/hooks/use-toast";
+import SimulationBadge from "@/components/SimulationBadge";
 import { format } from "date-fns";
 
 type FeedItem = {
