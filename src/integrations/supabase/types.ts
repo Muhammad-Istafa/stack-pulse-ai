@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          github_org: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          github_org?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          github_org?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      stack_tools: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          monthly_cost: number
+          tool_name: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          monthly_cost?: number
+          tool_name: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          monthly_cost?: number
+          tool_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      updates: {
+        Row: {
+          cost_impact: Database["public"]["Enums"]["cost_impact_type"]
+          created_at: string
+          id: string
+          source_url: string | null
+          summary: string
+          title: string
+          tool_name: string
+          urgency_score: number
+          user_id: string
+        }
+        Insert: {
+          cost_impact?: Database["public"]["Enums"]["cost_impact_type"]
+          created_at?: string
+          id?: string
+          source_url?: string | null
+          summary: string
+          title: string
+          tool_name: string
+          urgency_score?: number
+          user_id: string
+        }
+        Update: {
+          cost_impact?: Database["public"]["Enums"]["cost_impact_type"]
+          created_at?: string
+          id?: string
+          source_url?: string | null
+          summary?: string
+          title?: string
+          tool_name?: string
+          urgency_score?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +106,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      cost_impact_type: "positive" | "negative" | "neutral"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +233,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      cost_impact_type: ["positive", "negative", "neutral"],
+    },
   },
 } as const
