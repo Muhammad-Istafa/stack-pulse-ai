@@ -313,7 +313,7 @@ export default function Ops() {
           </aside>
 
           {/* Workspace */}
-          <section className="col-span-9 min-h-0 overflow-auto">
+          <section className="col-span-6 min-h-0 overflow-auto border-r border-border">
             <Tabs value={tab} onValueChange={setTab} className="p-6 space-y-4">
               <TabsList>
                 <TabsTrigger value="inbox"><Mail className="h-3.5 w-3.5 mr-1" /> From inbox</TabsTrigger>
