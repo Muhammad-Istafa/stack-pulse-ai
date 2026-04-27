@@ -1,6 +1,6 @@
 // Stack Sentinel — fetch-updates edge function
 // Pulls GitHub & Hacker News updates per tool, asks Lovable AI to rank relevance, stores results.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { createClient } from "npm:@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
