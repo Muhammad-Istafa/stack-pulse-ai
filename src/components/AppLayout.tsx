@@ -97,6 +97,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       </div>
 
       <ConnectGoogleDialog open={open} onOpenChange={setOpen} />
+      <IntegrationsDialog open={intOpen} onOpenChange={setIntOpen} />
     </div>
   );
 }
