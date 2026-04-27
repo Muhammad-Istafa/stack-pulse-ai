@@ -293,7 +293,11 @@ export default function Ops() {
                               <span className={`ml-auto text-[10px] text-muted-foreground ${e.status === "completed" ? "hidden" : ""}`}>{format(new Date(e.received_at), "h:mm a")}</span>
                             </div>
                             <div className="text-xs font-medium line-clamp-1">{e.subject}</div>
-                            <div className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{e.body}</div>
+                            {e.ai_summary ? (
+                              <div className="text-[11px] text-foreground/80 line-clamp-2 mt-0.5"><Sparkles className="h-2.5 w-2.5 inline text-primary mr-1" />{e.ai_summary}</div>
+                            ) : (
+                              <div className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{e.body}</div>
+                            )}
                             <Badge variant="outline" className={`mt-2 text-[9px] uppercase tracking-wider ${CATEGORY_STYLE[e.category] ?? ""}`}>{e.category.replace("_", " ")}</Badge>
                           </button>
                         </li>
