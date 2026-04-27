@@ -1,10 +1,12 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, lazy, Suspense } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { LayoutDashboard, Briefcase, Cpu, Activity, Sparkles, Calendar as CalendarIcon, Plug, FlaskConical, Check, Boxes } from "lucide-react";
+import { LayoutDashboard, Briefcase, Cpu, Activity, Calendar as CalendarIcon, Plug, FlaskConical, Check, Boxes } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMode } from "@/lib/mode";
 import ConnectGoogleDialog from "@/components/ConnectGoogleDialog";
 import IntegrationsDialog from "@/components/IntegrationsDialog";
+
+const ObsidianLogo3D = lazy(() => import("@/components/ObsidianLogo3D"));
 
 const NAV = [
   { to: "/brief", label: "Daily Brief", icon: LayoutDashboard },
