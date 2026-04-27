@@ -249,6 +249,7 @@ serve(async (req) => {
       case "code_impact": result = await codeImpact(body); break;
       case "migration": result = await migrationPlan(body); break;
       case "ab_test": result = await abTest(body); break;
+      case "decision_panel": result = await decisionPanel(body); break;
       default: return err("Unknown action", 400);
     }
     return ok(result);
