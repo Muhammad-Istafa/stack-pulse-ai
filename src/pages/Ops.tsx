@@ -408,7 +408,7 @@ export default function Ops() {
                   </div>
                 </Card>
 
-                {workflow && tab === "manual" && <WorkflowResult workflow={workflow} editing={editing} setEditing={setEditing} draft={draft} setDraft={setDraft} loading={loading} onApprove={approveAndSend} onRegenerate={() => buildWorkflow(workflow.problem, ["notion", "google_sheets", "hubspot"])} />}
+                {workflow && tab === "manual" && <WorkflowResult workflow={workflow} editing={editing} setEditing={setEditing} draft={draft} setDraft={setDraft} loading={loading} onApprove={approveAndSend} onRegenerate={() => buildWorkflow(workflow.problem, ["notion", "google_sheets", "hubspot"])} onRegenerateImproved={() => buildWorkflow(`${workflow.problem} (Improved version: shorter, more direct, lead with the key number, drop pleasantries.)`, ["notion", "google_sheets", "hubspot"])} />}
               </TabsContent>
             </Tabs>
           </section>
