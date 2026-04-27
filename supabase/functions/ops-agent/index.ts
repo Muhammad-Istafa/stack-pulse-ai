@@ -207,6 +207,74 @@ async function runWorkflow({ steps, problem, simulate_error }: any) {
   return { steps: ran, status: "awaiting_approval", final_output, error_message: null };
 }
 
+async function extractCommitments({ subject, body, sender }: any) {
+  const data = await callAI({
+    messages: [
+      {
+        role: "system",
+        content:
+          "You extract concrete COMMITMENTS from a founder's email — promises made, requested actions, and explicit or inferred deadlines. Be conservative: only return things that look like real obligations. Today is " +
+          new Date().toISOString().slice(0, 10) + ". Use ISO dates for deadlines. Owner is 'founder' if Paul (recipient) owes it, 'counterparty' if the sender owes it.",
+      },
+      { role: "user", content: `From: ${sender}\nSubject: ${subject}\n\n${body}` },
+    ],
+    tools: [{
+      type: "function",
+      function: {
+        name: "extract_commitments",
+        parameters: {
+          type: "object",
+          properties: {
+            commitments: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  task: { type: "string", description: "Short imperative task, e.g. 'Send onboarding doc to Linear'" },
+                  owner: { type: "string", enum: ["founder", "counterparty"] },
+                  source_quote: { type: "string", description: "Exact phrase from the email that implies the commitment" },
+                  deadline_iso: { type: "string", description: "ISO 8601 datetime, or empty string if none" },
+                },
+                required: ["task", "owner", "source_quote", "deadline_iso"],
+                additionalProperties: false,
+              },
+            },
+          },
+          required: ["commitments"],
+          additionalProperties: false,
+        },
+      },
+    }],
+    tool_choice: { type: "function", function: { name: "extract_commitments" } },
+  });
+  const args = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+  return args ? JSON.parse(args) : { commitments: [] };
+}
+
+async function summarizeEmail({ subject, body, sender }: any) {
+  const data = await callAI({
+    messages: [
+      { role: "system", content: "Summarize this email in ONE crisp sentence (max 18 words). No fluff. State what they want." },
+      { role: "user", content: `From: ${sender}\nSubject: ${subject}\n\n${body}` },
+    ],
+  });
+  return { summary: (data.choices?.[0]?.message?.content ?? "").trim().replace(/^["']|["']$/g, "") };
+}
+
+async function explainRisk({ score, signals }: any) {
+  const data = await callAI({
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are the FounderOS Risk Analyst. In 1-2 sentences, explain why the startup risk score is what it is and what the founder should do next. Be direct, calm, specific. No emojis. No 'as an AI'.",
+      },
+      { role: "user", content: `Score: ${score}/100\nSignals:\n${JSON.stringify(signals, null, 2)}` },
+    ],
+  });
+  return { explanation: (data.choices?.[0]?.message?.content ?? "").trim() };
+}
+
 async function suggestCalendar({ problem, output }: any) {
   const data = await callAI({
     messages: [
