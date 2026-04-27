@@ -313,6 +313,9 @@ serve(async (req) => {
     switch (action) {
       case "classify": result = await classifyEmail(body); break;
       case "extract": result = await extractTask(body); break;
+      case "summarize": result = await summarizeEmail(body); break;
+      case "extract_commitments": result = await extractCommitments(body); break;
+      case "explain_risk": result = await explainRisk(body); break;
       case "generate_workflow": result = await generateWorkflow(body); break;
       case "run_workflow": result = await runWorkflow(body); break;
       case "suggest_calendar": result = await suggestCalendar(body); break;
