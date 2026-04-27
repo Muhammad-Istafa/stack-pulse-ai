@@ -26,9 +26,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex bg-background text-foreground">
       <aside className="w-60 border-r border-border bg-sidebar flex flex-col shrink-0">
         <Link to="/brief" className="h-14 px-4 flex items-center gap-2 border-b border-sidebar-border">
-          <div className="h-7 w-7 rounded-md bg-primary-gradient grid place-items-center shadow-glow">
-            <Sparkles className="h-4 w-4 text-primary-foreground" />
-          </div>
+          <Suspense fallback={<div className="h-9 w-9" />}>
+            <ObsidianLogo3D size={36} interactive={false} />
+          </Suspense>
           <div className="leading-tight">
             <div className="font-semibold tracking-tight">FounderOS</div>
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">AI co-founder</div>
