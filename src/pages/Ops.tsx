@@ -12,9 +12,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { getDeviceId } from "@/lib/deviceId";
 import { logActivity } from "@/lib/activity";
 import { seedIfEmpty } from "@/lib/seed";
+import { extractCommitmentsForEmail } from "@/lib/commitments";
 import { toast } from "@/hooks/use-toast";
 import { WorkflowDiagram, type WorkflowStep } from "@/components/WorkflowDiagram";
 import { GmailSendDialog, type GmailPayload } from "@/components/GmailSendDialog";
+import CommitmentsPanel from "@/components/CommitmentsPanel";
 import { format } from "date-fns";
 
 type EmailRow = {
@@ -29,6 +31,7 @@ type EmailRow = {
   detected_intent: string | null;
   detected_urgency: string | null;
   detected_sources: string[] | null;
+  ai_summary: string | null;
   received_at: string;
 };
 
@@ -57,6 +60,7 @@ export default function Ops() {
   const [manualPrompt, setManualPrompt] = useState("Prepare onboarding email for new client");
   const [tab, setTab] = useState("inbox");
   const [gmailOpen, setGmailOpen] = useState(false);
+  const [commitRefresh, setCommitRefresh] = useState(0);
 
   useEffect(() => { document.title = "Ops Agent · FounderOS"; }, []);
 
@@ -90,6 +94,26 @@ export default function Ops() {
       setEmails(prev => prev.map(x => x.id === e.id ? { ...x, status: "read" } : x));
     }
 
+    // Kick off commitment extraction (in parallel, non-blocking) and AI summary if missing
+    if (e.category !== "cold") {
+      extractCommitmentsForEmail({ id: e.id, subject: e.subject, body: e.body, sender_name: e.sender_name })
+        .then(r => { if (r.extracted > 0) setCommitRefresh(v => v + 1); })
+        .catch(() => { /* silent */ });
+
+      if (!e.ai_summary) {
+        supabase.functions.invoke("ops-agent", {
+          body: { action: "summarize", subject: e.subject, body: e.body, sender: e.sender_name },
+        }).then(async ({ data }) => {
+          const summary = data?.summary;
+          if (!summary) return;
+          await supabase.from("emails").update({ ai_summary: summary }).eq("id", e.id);
+          const upd = { ...e, ai_summary: summary };
+          setSelected(prev => prev?.id === e.id ? { ...prev, ai_summary: summary } : prev);
+          setEmails(prev => prev.map(x => x.id === e.id ? upd : x));
+        }).catch(() => { /* silent */ });
+      }
+    }
+
     // If not yet analyzed, extract task
     if (!e.detected_intent && e.category !== "cold") {
       setLoading("extract");
@@ -104,8 +128,8 @@ export default function Ops() {
           detected_sources: data.data_sources,
         }).eq("id", e.id);
         const updated = { ...e, detected_intent: data.intent, detected_urgency: data.urgency, detected_sources: data.data_sources };
-        setSelected(updated);
-        setEmails(prev => prev.map(x => x.id === e.id ? updated : x));
+        setSelected(prev => prev?.id === e.id ? { ...prev, ...updated } : prev);
+        setEmails(prev => prev.map(x => x.id === e.id ? { ...x, ...updated } : x));
       } catch (err: any) {
         toast({ title: "Couldn't analyze email", description: err.message, variant: "destructive" });
       } finally { setLoading(""); }
@@ -216,6 +240,7 @@ export default function Ops() {
         toast({ title: "Email sent via Gmail", description: `Delivered to ${payload.to}` });
       }
       setWorkflow(prev => prev ? { ...prev, status: "sent" } : prev);
+      setCommitRefresh(v => v + 1);
     } catch (err: any) {
       toast({ title: "Approve failed", description: err.message, variant: "destructive" });
     } finally { setLoading(""); }
@@ -269,7 +294,11 @@ export default function Ops() {
                               <span className={`ml-auto text-[10px] text-muted-foreground ${e.status === "completed" ? "hidden" : ""}`}>{format(new Date(e.received_at), "h:mm a")}</span>
                             </div>
                             <div className="text-xs font-medium line-clamp-1">{e.subject}</div>
-                            <div className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{e.body}</div>
+                            {e.ai_summary ? (
+                              <div className="text-[11px] text-foreground/80 line-clamp-2 mt-0.5"><Sparkles className="h-2.5 w-2.5 inline text-primary mr-1" />{e.ai_summary}</div>
+                            ) : (
+                              <div className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{e.body}</div>
+                            )}
                             <Badge variant="outline" className={`mt-2 text-[9px] uppercase tracking-wider ${CATEGORY_STYLE[e.category] ?? ""}`}>{e.category.replace("_", " ")}</Badge>
                           </button>
                         </li>
@@ -285,7 +314,7 @@ export default function Ops() {
           </aside>
 
           {/* Workspace */}
-          <section className="col-span-9 min-h-0 overflow-auto">
+          <section className="col-span-6 min-h-0 overflow-auto border-r border-border">
             <Tabs value={tab} onValueChange={setTab} className="p-6 space-y-4">
               <TabsList>
                 <TabsTrigger value="inbox"><Mail className="h-3.5 w-3.5 mr-1" /> From inbox</TabsTrigger>
@@ -308,6 +337,12 @@ export default function Ops() {
                         </div>
                         <Badge variant="outline" className={`${CATEGORY_STYLE[selected.category]} text-[10px] uppercase tracking-wider`}>{selected.category.replace("_", " ")}</Badge>
                       </div>
+                      {selected.ai_summary && (
+                        <div className="mt-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm flex items-start gap-2">
+                          <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                          <span className="leading-snug">{selected.ai_summary}</span>
+                        </div>
+                      )}
                       <pre className="mt-3 whitespace-pre-wrap font-sans text-sm text-foreground/90 leading-relaxed">{selected.body}</pre>
                     </Card>
 
@@ -346,7 +381,7 @@ export default function Ops() {
                       </Card>
                     )}
 
-                    {workflow && <WorkflowResult workflow={workflow} editing={editing} setEditing={setEditing} draft={draft} setDraft={setDraft} loading={loading} onApprove={approveAndSend} onRegenerate={() => buildWorkflow(workflow.problem, selected?.detected_sources ?? [], selected?.id)} />}
+                    {workflow && <WorkflowResult workflow={workflow} editing={editing} setEditing={setEditing} draft={draft} setDraft={setDraft} loading={loading} onApprove={approveAndSend} onRegenerate={() => buildWorkflow(workflow.problem, selected?.detected_sources ?? [], selected?.id)} onRegenerateImproved={() => buildWorkflow(`${workflow.problem} (Improved version: shorter, more direct, lead with the key number, drop pleasantries.)`, selected?.detected_sources ?? [], selected?.id)} />}
                   </>
                 )}
               </TabsContent>
@@ -373,10 +408,15 @@ export default function Ops() {
                   </div>
                 </Card>
 
-                {workflow && tab === "manual" && <WorkflowResult workflow={workflow} editing={editing} setEditing={setEditing} draft={draft} setDraft={setDraft} loading={loading} onApprove={approveAndSend} onRegenerate={() => buildWorkflow(workflow.problem, ["notion", "google_sheets", "hubspot"])} />}
+                {workflow && tab === "manual" && <WorkflowResult workflow={workflow} editing={editing} setEditing={setEditing} draft={draft} setDraft={setDraft} loading={loading} onApprove={approveAndSend} onRegenerate={() => buildWorkflow(workflow.problem, ["notion", "google_sheets", "hubspot"])} onRegenerateImproved={() => buildWorkflow(`${workflow.problem} (Improved version: shorter, more direct, lead with the key number, drop pleasantries.)`, ["notion", "google_sheets", "hubspot"])} />}
               </TabsContent>
             </Tabs>
           </section>
+
+          {/* Commitments rail */}
+          <aside className="col-span-3 min-h-0 p-3">
+            <CommitmentsPanel refreshKey={commitRefresh} />
+          </aside>
         </div>
       </div>
       <GmailSendDialog
@@ -390,7 +430,7 @@ export default function Ops() {
   );
 }
 
-function WorkflowResult({ workflow, editing, setEditing, draft, setDraft, loading, onApprove, onRegenerate }: any) {
+function WorkflowResult({ workflow, editing, setEditing, draft, setDraft, loading, onApprove, onRegenerate, onRegenerateImproved }: any) {
   return (
     <div className="space-y-4">
       <Card className="p-5 shadow-card">
@@ -432,9 +472,12 @@ function WorkflowResult({ workflow, editing, setEditing, draft, setDraft, loadin
               <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">{draft}</pre>
             )}
           </div>
-          <div className="px-5 py-3 border-t border-border flex justify-end gap-2">
+          <div className="px-5 py-3 border-t border-border flex justify-end gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={onRegenerate} disabled={!!loading}>
               <RefreshCw className="h-4 w-4" /> Regenerate
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => onRegenerateImproved?.()} disabled={!!loading} className="border-primary/40 text-primary hover:bg-primary/10">
+              <Sparkles className="h-4 w-4" /> Improved version
             </Button>
             <Button variant="outline" size="sm" onClick={() => setEditing((v: boolean) => !v)}>
               <Pencil className="h-4 w-4" /> {editing ? "Done editing" : "Edit"}

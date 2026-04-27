@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { getDeviceId } from "@/lib/deviceId";
 import { seedIfEmpty } from "@/lib/seed";
+import RiskMeter from "@/components/RiskMeter";
+import TimeSavedCard from "@/components/TimeSavedCard";
 import { format, formatDistanceToNow } from "date-fns";
 
 type ActivityRow = { id: string; agent: string; action: string; title: string; detail: string | null; created_at: string };
@@ -50,6 +52,12 @@ export default function Brief() {
           <h1 className="mt-1 text-3xl font-semibold tracking-tight">Today's Critical Actions</h1>
           <p className="text-sm text-muted-foreground mt-1">{actionEmails.length} pending tasks · {feed.filter(f => (f.relevance_score ?? 0) >= 70).length} high-relevance tech opportunities</p>
         </header>
+
+        {/* Risk + Time Saved */}
+        <section className="grid lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2"><RiskMeter /></div>
+          <div className="lg:col-span-1"><TimeSavedCard /></div>
+        </section>
 
         {/* Critical actions */}
         <section>
