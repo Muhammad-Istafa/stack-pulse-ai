@@ -411,6 +411,11 @@ export default function Ops() {
               </TabsContent>
             </Tabs>
           </section>
+
+          {/* Commitments rail */}
+          <aside className="col-span-3 min-h-0 p-3">
+            <CommitmentsPanel refreshKey={commitRefresh} />
+          </aside>
         </div>
       </div>
       <GmailSendDialog
