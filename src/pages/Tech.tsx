@@ -28,6 +28,10 @@ type Analysis = {
   ab_test?: any;
   decision?: string;
   status?: string;
+  confidence?: number;
+  risk_level?: string;
+  sources?: Array<{ type: string; title: string; url: string; why_it_matters: string }>;
+  rationale?: string;
 };
 
 const SOURCE_LABEL: Record<string, string> = { model_release: "Model release", pricing: "Pricing", github_trend: "GitHub trend" };
