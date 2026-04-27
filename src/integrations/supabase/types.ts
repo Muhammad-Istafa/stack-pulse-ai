@@ -77,8 +77,48 @@ export type Database = {
         }
         Relationships: []
       }
+      commitments: {
+        Row: {
+          created_at: string
+          deadline: string | null
+          device_id: string
+          email_id: string | null
+          id: string
+          owner: string
+          source_quote: string | null
+          status: string
+          task: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deadline?: string | null
+          device_id: string
+          email_id?: string | null
+          id?: string
+          owner?: string
+          source_quote?: string | null
+          status?: string
+          task: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deadline?: string | null
+          device_id?: string
+          email_id?: string | null
+          id?: string
+          owner?: string
+          source_quote?: string | null
+          status?: string
+          task?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       emails: {
         Row: {
+          ai_summary: string | null
           body: string
           category: string
           created_at: string
@@ -95,6 +135,7 @@ export type Database = {
           subject: string
         }
         Insert: {
+          ai_summary?: string | null
           body: string
           category?: string
           created_at?: string
@@ -111,6 +152,7 @@ export type Database = {
           subject: string
         }
         Update: {
+          ai_summary?: string | null
           body?: string
           category?: string
           created_at?: string
