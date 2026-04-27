@@ -94,6 +94,26 @@ export default function Ops() {
       setEmails(prev => prev.map(x => x.id === e.id ? { ...x, status: "read" } : x));
     }
 
+    // Kick off commitment extraction (in parallel, non-blocking) and AI summary if missing
+    if (e.category !== "cold") {
+      extractCommitmentsForEmail({ id: e.id, subject: e.subject, body: e.body, sender_name: e.sender_name })
+        .then(r => { if (r.extracted > 0) setCommitRefresh(v => v + 1); })
+        .catch(() => { /* silent */ });
+
+      if (!e.ai_summary) {
+        supabase.functions.invoke("ops-agent", {
+          body: { action: "summarize", subject: e.subject, body: e.body, sender: e.sender_name },
+        }).then(async ({ data }) => {
+          const summary = data?.summary;
+          if (!summary) return;
+          await supabase.from("emails").update({ ai_summary: summary }).eq("id", e.id);
+          const upd = { ...e, ai_summary: summary };
+          setSelected(prev => prev?.id === e.id ? { ...prev, ai_summary: summary } : prev);
+          setEmails(prev => prev.map(x => x.id === e.id ? upd : x));
+        }).catch(() => { /* silent */ });
+      }
+    }
+
     // If not yet analyzed, extract task
     if (!e.detected_intent && e.category !== "cold") {
       setLoading("extract");
@@ -108,8 +128,8 @@ export default function Ops() {
           detected_sources: data.data_sources,
         }).eq("id", e.id);
         const updated = { ...e, detected_intent: data.intent, detected_urgency: data.urgency, detected_sources: data.data_sources };
-        setSelected(updated);
-        setEmails(prev => prev.map(x => x.id === e.id ? updated : x));
+        setSelected(prev => prev?.id === e.id ? { ...prev, ...updated } : prev);
+        setEmails(prev => prev.map(x => x.id === e.id ? { ...x, ...updated } : x));
       } catch (err: any) {
         toast({ title: "Couldn't analyze email", description: err.message, variant: "destructive" });
       } finally { setLoading(""); }
