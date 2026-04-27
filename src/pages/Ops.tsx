@@ -370,9 +370,6 @@ export default function Ops() {
                               <Button size="sm" onClick={() => buildWorkflow(selected.detected_intent!, selected.detected_sources ?? [], selected.id)} disabled={!!loading}>
                                 <Wand2 className="h-4 w-4" /> Generate workflow
                               </Button>
-                              <Button size="sm" variant="outline" onClick={() => buildWorkflow(selected.detected_intent!, selected.detected_sources ?? [], selected.id, true)} disabled={!!loading}>
-                                <AlertTriangle className="h-4 w-4" /> Demo: simulate error
-                              </Button>
                             </div>
                           </>
                         ) : (
