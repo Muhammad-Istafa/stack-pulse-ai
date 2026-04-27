@@ -1,9 +1,10 @@
 import { ReactNode, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { LayoutDashboard, Briefcase, Cpu, Activity, Sparkles, Calendar as CalendarIcon, Plug, FlaskConical, Check } from "lucide-react";
+import { LayoutDashboard, Briefcase, Cpu, Activity, Sparkles, Calendar as CalendarIcon, Plug, FlaskConical, Check, Boxes } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMode } from "@/lib/mode";
 import ConnectGoogleDialog from "@/components/ConnectGoogleDialog";
+import IntegrationsDialog from "@/components/IntegrationsDialog";
 
 const NAV = [
   { to: "/brief", label: "Daily Brief", icon: LayoutDashboard },
