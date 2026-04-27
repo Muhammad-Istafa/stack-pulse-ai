@@ -81,6 +81,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               <Plug className="h-3.5 w-3.5" /> Connect Google
             </Button>
           )}
+          <Button size="sm" variant="ghost" className="w-full justify-start" onClick={() => setIntOpen(true)}>
+            <Boxes className="h-3.5 w-3.5" /> Integrations
+            <span className="ml-auto text-[10px] text-muted-foreground">{connectedCount}/10</span>
+          </Button>
         </div>
 
         <div className="p-3 border-t border-sidebar-border text-[11px] text-muted-foreground">
