@@ -9,6 +9,8 @@ import { getDeviceId } from "@/lib/deviceId";
 import { seedIfEmpty } from "@/lib/seed";
 import RiskMeter from "@/components/RiskMeter";
 import TimeSavedCard from "@/components/TimeSavedCard";
+import OverviewPanel from "@/components/OverviewPanel";
+import SimulationBadge from "@/components/SimulationBadge";
 import { format, formatDistanceToNow } from "date-fns";
 
 type ActivityRow = { id: string; agent: string; action: string; title: string; detail: string | null; created_at: string };
@@ -47,11 +49,17 @@ export default function Brief() {
   return (
     <AppLayout>
       <div className="p-8 max-w-6xl mx-auto space-y-8">
-        <header>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{format(today, "EEEE, MMMM d")}</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">Today's Critical Actions</h1>
-          <p className="text-sm text-muted-foreground mt-1">{actionEmails.length} pending tasks · {feed.filter(f => (f.relevance_score ?? 0) >= 70).length} high-relevance tech opportunities</p>
+        <header className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{format(today, "EEEE, MMMM d")}</p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight">Today's Critical Actions</h1>
+            <p className="text-sm text-muted-foreground mt-1">{actionEmails.length} pending tasks · {feed.filter(f => (f.relevance_score ?? 0) >= 70).length} high-relevance tech opportunities</p>
+          </div>
+          <SimulationBadge />
         </header>
+
+        {/* Unified AI overview */}
+        <OverviewPanel />
 
         {/* Risk + Time Saved */}
         <section className="grid lg:grid-cols-3 gap-4">
