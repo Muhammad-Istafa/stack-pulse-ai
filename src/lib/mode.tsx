@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 const STORAGE_KEY = "founderos.connection";
+const INTEGRATIONS_KEY = "founderos.integrations";
 
 export type Connection = {
   connected: boolean;
@@ -10,10 +11,38 @@ export type Connection = {
   scopes?: string[];
 };
 
+export type PlatformId =
+  | "vercel" | "notion" | "stripe" | "github" | "linear"
+  | "hubspot" | "slack" | "google_sheets" | "perplexity" | "supabase";
+
+export type IntegrationState = {
+  connected: boolean;
+  account?: string;
+  connectedAt?: string;
+};
+
+export type Integrations = Record<PlatformId, IntegrationState>;
+
+const DEFAULT_INTEGRATIONS: Integrations = {
+  vercel: { connected: false },
+  notion: { connected: false },
+  stripe: { connected: false },
+  github: { connected: false },
+  linear: { connected: false },
+  hubspot: { connected: false },
+  slack: { connected: false },
+  google_sheets: { connected: false },
+  perplexity: { connected: false },
+  supabase: { connected: false },
+};
+
 type Ctx = {
   connection: Connection;
   connect: (data: { email: string; name?: string; scopes?: string[] }) => void;
   disconnect: () => void;
+  integrations: Integrations;
+  connectPlatform: (id: PlatformId, account: string) => void;
+  disconnectPlatform: (id: PlatformId) => void;
 };
 
 const ModeContext = createContext<Ctx | null>(null);
