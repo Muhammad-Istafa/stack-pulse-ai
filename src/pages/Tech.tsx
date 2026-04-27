@@ -75,7 +75,7 @@ export default function Tech() {
     setAnalysis(null);
     const { data } = await supabase.from("tech_analyses")
       .select("*").eq("feed_id", it.id).maybeSingle();
-    if (data) setAnalysis(data as Analysis);
+    if (data) setAnalysis(data as unknown as Analysis);
   }
 
   async function runAction(action: "sandbox" | "code_impact" | "migration" | "ab_test") {
