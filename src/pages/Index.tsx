@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
+
+const ObsidianLogo3D = lazy(() => import("@/components/ObsidianLogo3D"));
 
 export default function Index() {
   useEffect(() => {
