@@ -31,6 +31,7 @@ type EmailRow = {
   detected_intent: string | null;
   detected_urgency: string | null;
   detected_sources: string[] | null;
+  ai_summary: string | null;
   received_at: string;
 };
 
