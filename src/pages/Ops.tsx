@@ -17,6 +17,7 @@ import { toast } from "@/hooks/use-toast";
 import { WorkflowDiagram, type WorkflowStep } from "@/components/WorkflowDiagram";
 import { GmailSendDialog, type GmailPayload } from "@/components/GmailSendDialog";
 import CommitmentsPanel from "@/components/CommitmentsPanel";
+import SimulationBadge from "@/components/SimulationBadge";
 import { format } from "date-fns";
 
 type EmailRow = {
@@ -256,6 +257,7 @@ export default function Ops() {
             <Briefcase className="h-5 w-5 text-primary" />
             <h1 className="text-xl font-semibold tracking-tight">Ops Agent</h1>
             <Badge variant="secondary" className="ml-1">for Paul</Badge>
+            <div className="ml-auto"><SimulationBadge /></div>
           </div>
           <p className="text-xs text-muted-foreground mt-1">Inbox → detected task → executable pipeline → drafted reply, ready for your approval.</p>
         </header>
