@@ -1,4 +1,7 @@
 project_id = "fnfdtdcutyvlxwglmpfg"
 
-[functions.fetch-updates]
+[functions.ops-agent]
+verify_jwt = false
+
+[functions.tech-agent]
 verify_jwt = false

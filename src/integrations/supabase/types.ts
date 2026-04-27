@@ -14,87 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
-      profiles: {
+      activity_log: {
         Row: {
+          action: string
+          agent: string
           created_at: string
-          email: string
-          github_org: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          github_org?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          github_org?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      stack_tools: {
-        Row: {
-          category: string
-          created_at: string
+          detail: string | null
+          device_id: string
           id: string
-          monthly_cost: number
-          tool_name: string
-          user_id: string
+          title: string
         }
         Insert: {
-          category: string
+          action: string
+          agent: string
           created_at?: string
+          detail?: string | null
+          device_id: string
           id?: string
-          monthly_cost?: number
-          tool_name: string
-          user_id: string
+          title: string
         }
         Update: {
-          category?: string
+          action?: string
+          agent?: string
           created_at?: string
+          detail?: string | null
+          device_id?: string
           id?: string
-          monthly_cost?: number
-          tool_name?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      updates: {
-        Row: {
-          cost_impact: Database["public"]["Enums"]["cost_impact_type"]
-          created_at: string
-          id: string
-          source_url: string | null
-          summary: string
-          title: string
-          tool_name: string
-          urgency_score: number
-          user_id: string
-        }
-        Insert: {
-          cost_impact?: Database["public"]["Enums"]["cost_impact_type"]
-          created_at?: string
-          id?: string
-          source_url?: string | null
-          summary: string
-          title: string
-          tool_name: string
-          urgency_score?: number
-          user_id: string
-        }
-        Update: {
-          cost_impact?: Database["public"]["Enums"]["cost_impact_type"]
-          created_at?: string
-          id?: string
-          source_url?: string | null
-          summary?: string
           title?: string
-          tool_name?: string
-          urgency_score?: number
-          user_id?: string
+        }
+        Relationships: []
+      }
+      ops_tasks: {
+        Row: {
+          context: Json | null
+          created_at: string
+          device_id: string
+          id: string
+          output: string | null
+          prompt: string
+          status: Database["public"]["Enums"]["task_status"]
+          updated_at: string
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string
+          device_id: string
+          id?: string
+          output?: string | null
+          prompt: string
+          status?: Database["public"]["Enums"]["task_status"]
+          updated_at?: string
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string
+          device_id?: string
+          id?: string
+          output?: string | null
+          prompt?: string
+          status?: Database["public"]["Enums"]["task_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tech_tasks: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          migration_plan: string | null
+          prompt: string
+          recommendation: string | null
+          sandbox_test: string | null
+          status: Database["public"]["Enums"]["task_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          migration_plan?: string | null
+          prompt: string
+          recommendation?: string | null
+          sandbox_test?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          migration_plan?: string | null
+          prompt?: string
+          recommendation?: string | null
+          sandbox_test?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -106,7 +121,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      cost_impact_type: "positive" | "negative" | "neutral"
+      task_status: "draft" | "approved" | "ignored"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -234,7 +249,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      cost_impact_type: ["positive", "negative", "neutral"],
+      task_status: ["draft", "approved", "ignored"],
     },
   },
 } as const
