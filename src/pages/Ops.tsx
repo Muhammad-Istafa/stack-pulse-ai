@@ -336,6 +336,12 @@ export default function Ops() {
                         </div>
                         <Badge variant="outline" className={`${CATEGORY_STYLE[selected.category]} text-[10px] uppercase tracking-wider`}>{selected.category.replace("_", " ")}</Badge>
                       </div>
+                      {selected.ai_summary && (
+                        <div className="mt-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm flex items-start gap-2">
+                          <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                          <span className="leading-snug">{selected.ai_summary}</span>
+                        </div>
+                      )}
                       <pre className="mt-3 whitespace-pre-wrap font-sans text-sm text-foreground/90 leading-relaxed">{selected.body}</pre>
                     </Card>
 
