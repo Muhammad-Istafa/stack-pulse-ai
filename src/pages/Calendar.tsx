@@ -286,7 +286,7 @@ export default function CalendarPage() {
                           {format(new Date(ev.scheduled_for), "EEE MMM d, h:mm a")}
                           {ev.rescheduled_from && (
                             <span className="ml-1.5 text-primary inline-flex items-center gap-0.5">
-                              · <Sparkles className="h-2.5 w-2.5" /> AI rescheduled from {format(new Date(ev.scheduled_from), "h:mm a")}
+                              · <Sparkles className="h-2.5 w-2.5" /> AI rescheduled from {format(new Date(ev.rescheduled_from), "h:mm a")}
                             </span>
                           )}
                         </div>
