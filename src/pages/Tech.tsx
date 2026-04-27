@@ -82,7 +82,10 @@ export default function Tech() {
     if (!selected) return;
     setLoading(action);
     try {
-      const { data, error } = await supabase.functions.invoke("tech-agent", { body: { action, item: selected } });
+      const reqBody = action === "decision_panel"
+        ? { action, item: selected, analysis }
+        : { action, item: selected };
+      const { data, error } = await supabase.functions.invoke("tech-agent", { body: reqBody });
       if (error || data?.error) throw new Error(data?.error ?? error?.message);
 
       let next: Analysis = { ...(analysis ?? {}), feed_id: selected.id };
@@ -90,6 +93,12 @@ export default function Tech() {
       if (action === "code_impact") next.code_impact = data;
       if (action === "migration") next.migration_plan = data.migration_plan;
       if (action === "ab_test") { next.ab_test = data; next.status = "ab_running"; }
+      if (action === "decision_panel") {
+        next.confidence = data.confidence;
+        next.risk_level = data.risk_level;
+        next.sources = data.sources;
+        next.rationale = data.rationale;
+      }
 
       // upsert
       if (next.id) {
