@@ -12,9 +12,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { getDeviceId } from "@/lib/deviceId";
 import { logActivity } from "@/lib/activity";
 import { seedIfEmpty } from "@/lib/seed";
+import { extractCommitmentsForEmail } from "@/lib/commitments";
 import { toast } from "@/hooks/use-toast";
 import { WorkflowDiagram, type WorkflowStep } from "@/components/WorkflowDiagram";
 import { GmailSendDialog, type GmailPayload } from "@/components/GmailSendDialog";
+import CommitmentsPanel from "@/components/CommitmentsPanel";
 import { format } from "date-fns";
 
 type EmailRow = {
