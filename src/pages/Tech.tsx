@@ -78,7 +78,7 @@ export default function Tech() {
     if (data) setAnalysis(data as unknown as Analysis);
   }
 
-  async function runAction(action: "sandbox" | "code_impact" | "migration" | "ab_test") {
+  async function runAction(action: "sandbox" | "code_impact" | "migration" | "ab_test" | "decision_panel") {
     if (!selected) return;
     setLoading(action);
     try {
