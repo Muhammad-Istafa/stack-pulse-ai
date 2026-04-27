@@ -381,7 +381,7 @@ export default function Ops() {
                       </Card>
                     )}
 
-                    {workflow && <WorkflowResult workflow={workflow} editing={editing} setEditing={setEditing} draft={draft} setDraft={setDraft} loading={loading} onApprove={approveAndSend} onRegenerate={() => buildWorkflow(workflow.problem, selected?.detected_sources ?? [], selected?.id)} />}
+                    {workflow && <WorkflowResult workflow={workflow} editing={editing} setEditing={setEditing} draft={draft} setDraft={setDraft} loading={loading} onApprove={approveAndSend} onRegenerate={() => buildWorkflow(workflow.problem, selected?.detected_sources ?? [], selected?.id)} onRegenerateImproved={() => buildWorkflow(`${workflow.problem} (Improved version: shorter, more direct, lead with the key number, drop pleasantries.)`, selected?.detected_sources ?? [], selected?.id)} />}
                   </>
                 )}
               </TabsContent>
