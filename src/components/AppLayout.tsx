@@ -15,8 +15,10 @@ const NAV = [
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
-  const { connection } = useMode();
+  const { connection, integrations } = useMode();
   const [open, setOpen] = useState(false);
+  const [intOpen, setIntOpen] = useState(false);
+  const connectedCount = Object.values(integrations).filter(i => i.connected).length;
 
   return (
     <div className="min-h-screen flex bg-background text-foreground">
