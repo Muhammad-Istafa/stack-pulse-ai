@@ -45,7 +45,7 @@ export default function Onboarding() {
       toast.error("Tool name and valid cost required");
       return;
     }
-    setTools((t) => [...t, parsed.data]);
+    setTools((t) => [...t, parsed.data as Tool]);
     setDraft({ tool_name: "", category: draft.category, monthly_cost: 0 });
   };
 
