@@ -47,10 +47,10 @@ export default function Index() {
         />
 
         <div className="relative z-10 flex flex-col items-center max-w-4xl">
-          <div className="mb-7 flex items-center gap-3">
-            <span className="block h-px w-16 bg-border" />
-            <span className="ornament-diamond" />
-            <span className="block h-px w-16 bg-border" />
+          <div className="mb-2 -mt-4">
+            <Suspense fallback={<div style={{ width: 260, height: 260 }} />}>
+              <ObsidianLogo3D size={260} />
+            </Suspense>
           </div>
 
           <p className="font-display font-thin text-[10px] tracking-[0.5em] uppercase text-primary mb-6">
