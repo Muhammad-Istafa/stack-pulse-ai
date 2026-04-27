@@ -472,9 +472,12 @@ function WorkflowResult({ workflow, editing, setEditing, draft, setDraft, loadin
               <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">{draft}</pre>
             )}
           </div>
-          <div className="px-5 py-3 border-t border-border flex justify-end gap-2">
+          <div className="px-5 py-3 border-t border-border flex justify-end gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={onRegenerate} disabled={!!loading}>
               <RefreshCw className="h-4 w-4" /> Regenerate
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => onRegenerateImproved?.()} disabled={!!loading} className="border-primary/40 text-primary hover:bg-primary/10">
+              <Sparkles className="h-4 w-4" /> Improved version
             </Button>
             <Button variant="outline" size="sm" onClick={() => setEditing((v: boolean) => !v)}>
               <Pencil className="h-4 w-4" /> {editing ? "Done editing" : "Edit"}
