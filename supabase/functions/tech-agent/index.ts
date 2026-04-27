@@ -182,6 +182,61 @@ async function abTest({ item }: any) {
   return args ? JSON.parse(args) : {};
 }
 
+async function decisionPanel({ item, analysis }: any) {
+  const data = await callAI({
+    messages: [
+      {
+        role: "system",
+        content:
+          `You are the Tech Decision Architect. Synthesize a final recommendation for switching to a new tool. Use sandbox + code impact + A/B results when present. Always include 2-4 plausible source citations (vendor docs URL, pricing page, GitHub repo, benchmark blog post). Be conservative on risk and confidence. ${STACK_CONTEXT}`,
+      },
+      {
+        role: "user",
+        content: `Tool: ${item.title} (${item.vendor})\nSummary: ${item.summary}\nAnalysis context: ${JSON.stringify({
+          sandbox: analysis?.sandbox,
+          code_impact: analysis?.code_impact,
+          ab_test: analysis?.ab_test,
+          has_migration_plan: !!analysis?.migration_plan,
+        })}`,
+      },
+    ],
+    tools: [{
+      type: "function",
+      function: {
+        name: "decision",
+        parameters: {
+          type: "object",
+          properties: {
+            decision: { type: "string", enum: ["switch", "hold", "reject"] },
+            confidence: { type: "number", description: "0-100" },
+            risk_level: { type: "string", enum: ["low", "medium", "high"] },
+            rationale: { type: "string", description: "2-3 sentence summary fitted to the founder's stack" },
+            sources: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  type: { type: "string", enum: ["docs", "pricing", "github", "benchmark", "blog", "release_notes"] },
+                  title: { type: "string" },
+                  url: { type: "string", description: "Plausible canonical URL" },
+                  why_it_matters: { type: "string", description: "1 line — why this source supports the recommendation" },
+                },
+                required: ["type", "title", "url", "why_it_matters"],
+                additionalProperties: false,
+              },
+            },
+          },
+          required: ["decision", "confidence", "risk_level", "rationale", "sources"],
+          additionalProperties: false,
+        },
+      },
+    }],
+    tool_choice: { type: "function", function: { name: "decision" } },
+  });
+  const args = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+  return args ? JSON.parse(args) : { decision: "hold", confidence: 50, risk_level: "medium", rationale: "", sources: [] };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
