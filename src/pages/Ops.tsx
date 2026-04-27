@@ -240,6 +240,7 @@ export default function Ops() {
         toast({ title: "Email sent via Gmail", description: `Delivered to ${payload.to}` });
       }
       setWorkflow(prev => prev ? { ...prev, status: "sent" } : prev);
+      setCommitRefresh(v => v + 1);
     } catch (err: any) {
       toast({ title: "Approve failed", description: err.message, variant: "destructive" });
     } finally { setLoading(""); }
