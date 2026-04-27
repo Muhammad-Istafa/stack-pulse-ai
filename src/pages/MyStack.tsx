@@ -49,12 +49,13 @@ export default function MyStack() {
     if (!user) return;
     const parsed = schema.safeParse(form);
     if (!parsed.success) { toast.error("Invalid input"); return; }
+    const row = { tool_name: parsed.data.tool_name, category: parsed.data.category, monthly_cost: parsed.data.monthly_cost };
     if (editing) {
-      const { error } = await supabase.from("stack_tools").update(parsed.data).eq("id", editing.id);
+      const { error } = await supabase.from("stack_tools").update(row).eq("id", editing.id);
       if (error) return toast.error(error.message);
       toast.success("Updated");
     } else {
-      const { error } = await supabase.from("stack_tools").insert([{ ...parsed.data, user_id: user.id }]);
+      const { error } = await supabase.from("stack_tools").insert([{ ...row, user_id: user.id }]);
       if (error) return toast.error(error.message);
       toast.success("Added");
     }
