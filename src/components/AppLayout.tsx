@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useMode } from "@/lib/mode";
 import ConnectGoogleDialog from "@/components/ConnectGoogleDialog";
 import IntegrationsDialog from "@/components/IntegrationsDialog";
+import UserStatus from "@/components/UserStatus";
 
 const ObsidianLogo3D = lazy(() => import("@/components/ObsidianLogo3D"));
 
@@ -55,6 +56,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
         {/* Mode card */}
         <div className="p-3 border-t border-sidebar-border space-y-2">
+          <UserStatus />
           {connection.connected ? (
             <button
               onClick={() => setOpen(true)}
