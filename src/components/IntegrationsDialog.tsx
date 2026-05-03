@@ -51,7 +51,7 @@ export default function IntegrationsDialog({ open, onOpenChange }: { open: boole
         <DialogHeader>
           <DialogTitle>Integrations</DialogTitle>
           <DialogDescription>
-            Connect platforms FounderOS uses across Ops and Tech workflows. Connections are simulated for the demo.
+            Connect platforms StackPulse uses across Ops and Tech workflows. Connections are simulated for the demo.
           </DialogDescription>
         </DialogHeader>
 
@@ -106,7 +106,7 @@ export default function IntegrationsDialog({ open, onOpenChange }: { open: boole
               <label className="text-xs text-muted-foreground">{activeP.accountLabel}</label>
               <Input value={account} onChange={(e) => setAccount(e.target.value)} placeholder={activeP.accountPlaceholder} />
               <p className="text-[10px] text-muted-foreground">
-                Demo connection — no OAuth flow runs. FounderOS will treat this platform as connected and use mock data.
+                Demo connection — no OAuth flow runs. StackPulse will treat this platform as connected and use mock data.
               </p>
             </div>
             <div className="flex gap-2 justify-end">

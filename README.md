@@ -1,6 +1,6 @@
-# FounderOS — Private Intelligence
+# StackPulse — Private Intelligence
 
-A dark, editorial AI co-founder dashboard. FounderOS triages a founder's inbox,
+A dark, editorial AI co-founder dashboard. StackPulse triages a founder's inbox,
 extracts commitments, drafts replies, surfaces tech-stack decisions, and keeps
 a calendar of what actually matters — without ever auto-executing.
 
@@ -8,7 +8,7 @@ a calendar of what actually matters — without ever auto-executing.
 
 Founders drown in low-signal inbox + tooling noise. Existing "AI assistants"
 either over-automate (risking damage) or under-deliver (generic summaries).
-FounderOS is opinionated counsel: it drafts, scores, and proposes — the founder
+StackPulse is opinionated counsel: it drafts, scores, and proposes — the founder
 always approves.
 
 ## Features

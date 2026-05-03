@@ -6,7 +6,7 @@ const ObsidianLogo3D = lazy(() => import("@/components/ObsidianLogo3D"));
 
 export default function Index() {
   useEffect(() => {
-    document.title = "FounderOS — Private Intelligence";
+    document.title = "StackPulse — Private Intelligence";
   }, []);
 
   return (
@@ -14,7 +14,7 @@ export default function Index() {
       {/* NAV */}
       <nav className="fixed top-0 inset-x-0 z-50 h-16 px-6 md:px-12 flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-xl">
         <Link to="/" className="font-display font-thin text-[12px] tracking-[0.5em] uppercase text-primary-glow">
-          FounderOS
+          StackPulse
         </Link>
         <ul className="hidden md:flex gap-9 list-none">
           {["Philosophy", "Services", "Doctrine", "Membership"].map((l) => (
@@ -59,7 +59,7 @@ export default function Index() {
           </p>
 
           <h1 className="font-serif-display text-[clamp(64px,9vw,124px)] font-light leading-[0.92] tracking-tight text-primary-glow">
-            FounderOS
+            StackPulse
             <em className="block not-italic text-[0.36em] tracking-[0.6em] text-foreground/60 font-light mt-3 uppercase">
               Intelligence
             </em>
@@ -106,7 +106,7 @@ export default function Index() {
           {[
             { num: "I · Clarity", title: "Signal from noise", body: "We do not aggregate. We distill. Every brief delivered to a member has been argued against, pressure-tested, and reduced to its essential consequential truth." },
             { num: "II · Speed", title: "At the velocity of events", body: "By the time a report is published, it is history. Our principals receive the implications of a development before the market has named it." },
-            { num: "III · Discretion", title: "The counsel that does not leave the room", body: "No attribution. No records. FounderOS operates on invitation, confidential by architecture, and exists only between advisor and principal." },
+            { num: "III · Discretion", title: "The counsel that does not leave the room", body: "No attribution. No records. StackPulse operates on invitation, confidential by architecture, and exists only between advisor and principal." },
           ].map((p, i) => (
             <div key={p.num} className={`p-10 text-left ${i < 2 ? "md:border-r border-border" : ""} ${i < 2 ? "border-b md:border-b-0 border-border" : ""}`}>
               <span className="block font-display font-thin text-[9px] tracking-[0.3em] text-primary mb-4">{p.num}</span>
@@ -162,7 +162,7 @@ export default function Index() {
           "The question has never been whether to act on intelligence — it has always been whether the intelligence was worth acting on."
         </p>
         <p className="mt-12 font-display font-thin text-[9px] tracking-[0.4em] uppercase text-primary/50">
-          FounderOS · Internal Doctrine · MMXXV
+          StackPulse · Internal Doctrine · MMXXV
         </p>
       </section>
 
@@ -171,7 +171,7 @@ export default function Index() {
         <span className="block font-display font-thin text-[9px] tracking-[0.5em] uppercase text-primary mb-8">Admission</span>
         <h2 className="font-serif-display text-[clamp(44px,7vw,82px)] font-light text-primary-glow tracking-tight mb-5">Membership</h2>
         <p className="font-serif-display italic text-[17px] font-light text-foreground/60 max-w-lg mx-auto leading-[1.8] mb-16">
-          FounderOS does not advertise. We extend access to founders referred by existing members, or those who have come to our attention through work of consequence.
+          StackPulse does not advertise. We extend access to founders referred by existing members, or those who have come to our attention through work of consequence.
         </p>
 
         <div className="flex flex-col md:flex-row max-w-3xl mx-auto border border-border mb-16">
@@ -199,7 +199,7 @@ export default function Index() {
       {/* FOOTER */}
       <footer className="px-6 py-14 text-center border-t border-border">
         <span className="block font-display font-thin text-[10px] tracking-[0.6em] uppercase mb-4" style={{ color: "hsl(38 44% 61% / 0.5)" }}>
-          FounderOS
+          StackPulse
         </span>
         <p className="font-display font-thin text-[11px] tracking-[0.2em] text-foreground/30">
           Private Intelligence · By introduction only · MMXXV · All enquiries held in the strictest confidence

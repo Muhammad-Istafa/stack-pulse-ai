@@ -1,6 +1,6 @@
 # 3D Dynamic Logo — Obsidian Gem
 
-Replace the flat gold diamond with a faceted 3D crystal that floats, rotates, refracts light, and reacts to hover. It will be the new signature mark of FounderOS — luxurious, alive, and on-brand with the Obsidian aesthetic.
+Replace the flat gold diamond with a faceted 3D crystal that floats, rotates, refracts light, and reacts to hover. It will be the new signature mark of StackPulse — luxurious, alive, and on-brand with the Obsidian aesthetic.
 
 ## What it looks like
 

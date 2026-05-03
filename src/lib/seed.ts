@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { getDeviceId } from "./deviceId";
 
-const SEED_FLAG = "founderos-seeded-v1";
+const SEED_FLAG = "stackpulse-seeded-v1";
 
 const EMAILS = [
   {

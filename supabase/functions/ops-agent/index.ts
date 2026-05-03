@@ -267,7 +267,7 @@ async function explainRisk({ score, signals }: any) {
       {
         role: "system",
         content:
-          "You are the FounderOS Risk Analyst. In 1-2 sentences, explain why the startup risk score is what it is and what the founder should do next. Be direct, calm, specific. No emojis. No 'as an AI'.",
+          "You are the StackPulse Risk Analyst. In 1-2 sentences, explain why the startup risk score is what it is and what the founder should do next. Be direct, calm, specific. No emojis. No 'as an AI'.",
       },
       { role: "user", content: `Score: ${score}/100\nSignals:\n${JSON.stringify(signals, null, 2)}` },
     ],

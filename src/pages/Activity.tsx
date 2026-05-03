@@ -23,7 +23,7 @@ export default function ActivityPage() {
   const [feedMap, setFeedMap] = useState<Record<string, FeedRow>>({});
   const [tab, setTab] = useState("timeline");
 
-  useEffect(() => { document.title = "Activity · FounderOS"; }, []);
+  useEffect(() => { document.title = "Activity · StackPulse"; }, []);
   useEffect(() => {
     const did = getDeviceId();
     Promise.all([

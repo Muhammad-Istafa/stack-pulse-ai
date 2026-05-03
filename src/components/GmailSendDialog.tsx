@@ -83,7 +83,7 @@ export function GmailSendDialog({
 
     const latency = Math.round(performance.now() - start);
     const payload: GmailPayload = {
-      from: "paul@founderos.app",
+      from: "paul@stackpulse.app",
       to,
       cc: cc || undefined,
       subject,
@@ -113,7 +113,7 @@ export function GmailSendDialog({
         {stage !== "sent" ? (
           <>
             <div className="px-5 py-3 space-y-2 text-sm">
-              <Row label="From"><span className="text-muted-foreground">paul@founderos.app</span></Row>
+              <Row label="From"><span className="text-muted-foreground">paul@stackpulse.app</span></Row>
               <Row label="To"><Input value={to} onChange={e => setTo(e.target.value)} className="h-8 border-0 px-0 focus-visible:ring-0" disabled={stage !== "compose"} /></Row>
               <Row label="Cc"><Input value={cc} onChange={e => setCc(e.target.value)} placeholder="optional" className="h-8 border-0 px-0 focus-visible:ring-0" disabled={stage !== "compose"} /></Row>
               <Row label="Subject"><Input value={subject} onChange={e => setSubject(e.target.value)} className="h-8 border-0 px-0 font-medium focus-visible:ring-0" disabled={stage !== "compose"} /></Row>

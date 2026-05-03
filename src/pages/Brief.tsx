@@ -24,7 +24,7 @@ export default function Brief() {
   const [feed, setFeed] = useState<FeedRow[]>([]);
   const [events, setEvents] = useState<CalEvent[]>([]);
 
-  useEffect(() => { document.title = "Daily Brief · FounderOS"; }, []);
+  useEffect(() => { document.title = "Daily Brief · StackPulse"; }, []);
 
   useEffect(() => {
     (async () => {

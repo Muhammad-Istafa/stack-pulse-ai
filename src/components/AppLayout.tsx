@@ -30,7 +30,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <ObsidianLogo3D size={36} interactive={false} />
           </Suspense>
           <div className="leading-tight">
-            <div className="font-semibold tracking-tight">FounderOS</div>
+            <div className="font-semibold tracking-tight">StackPulse</div>
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">AI co-founder</div>
           </div>
         </Link>

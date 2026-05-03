@@ -18,7 +18,7 @@ const SCOPES = [
 
 export default function ConnectGoogleDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const { connection, connect, disconnect } = useMode();
-  const [email, setEmail] = useState("paul@founderos.app");
+  const [email, setEmail] = useState("paul@stackpulse.app");
   const [name, setName] = useState("Paul");
   const [picked, setPicked] = useState<string[]>(SCOPES.map(s => s.id));
   const [stage, setStage] = useState<"form" | "connecting" | "done">("form");
@@ -36,7 +36,7 @@ export default function ConnectGoogleDialog({ open, onOpenChange }: { open: bool
     setTimeout(() => {
       onOpenChange(false);
       setStage("form");
-      toast({ title: "Connected", description: "FounderOS now operates on live data." });
+      toast({ title: "Connected", description: "StackPulse now operates on live data." });
     }, 600);
   }
 
@@ -53,7 +53,7 @@ export default function ConnectGoogleDialog({ open, onOpenChange }: { open: bool
           <DialogTitle>{connection.connected ? "Google account" : "Connect Google account"}</DialogTitle>
           <DialogDescription>
             {connection.connected
-              ? "Manage which services FounderOS can access. Disconnect to return to Simulation mode."
+              ? "Manage which services StackPulse can access. Disconnect to return to Simulation mode."
               : "Personalize Ops Agent with your real inbox, calendar and sheets. Demo: connection is simulated locally."}
           </DialogDescription>
         </DialogHeader>
