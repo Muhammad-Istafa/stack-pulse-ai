@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { toast } from "sonner";
 
 const STORAGE_KEY = "stackpulse.connection";
 const INTEGRATIONS_KEY = "stackpulse.integrations";
@@ -47,6 +48,13 @@ type Ctx = {
 
 const ModeContext = createContext<Ctx | null>(null);
 
+const PLATFORM_LABELS: Record<PlatformId, string> = {
+  vercel: "Vercel", notion: "Notion", stripe: "Stripe", github: "GitHub",
+  linear: "Linear", hubspot: "HubSpot", slack: "Slack",
+  google_sheets: "Google Sheets", perplexity: "Perplexity", supabase: "Supabase",
+};
+function labelFor(id: PlatformId) { return PLATFORM_LABELS[id] ?? id; }
+
 export function ModeProvider({ children }: { children: ReactNode }) {
   const [connection, setConnection] = useState<Connection>({ connected: false });
   const [integrations, setIntegrations] = useState<Integrations>(DEFAULT_INTEGRATIONS);
@@ -82,10 +90,12 @@ export function ModeProvider({ children }: { children: ReactNode }) {
       scopes: data.scopes ?? ["gmail.readonly", "gmail.send", "calendar.events", "spreadsheets.readonly"],
       connectedAt: new Date().toISOString(),
     });
+    toast.success("Google connected", { description: data.email });
   }
 
   function disconnect() {
     persist({ connected: false });
+    toast("Google disconnected", { description: "Switched back to simulation mode." });
   }
 
   function connectPlatform(id: PlatformId, account: string) {
@@ -93,10 +103,12 @@ export function ModeProvider({ children }: { children: ReactNode }) {
       ...integrations,
       [id]: { connected: true, account, connectedAt: new Date().toISOString() },
     });
+    toast.success(`${labelFor(id)} connected`, { description: account });
   }
 
   function disconnectPlatform(id: PlatformId) {
     persistIntegrations({ ...integrations, [id]: { connected: false } });
+    toast(`${labelFor(id)} disconnected`);
   }
 
   return (
