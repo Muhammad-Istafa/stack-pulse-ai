@@ -11,6 +11,7 @@ import Tech from "./pages/Tech.tsx";
 import Activity from "./pages/Activity.tsx";
 import CalendarPage from "./pages/Calendar.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import AuthGate from "./components/AuthGate";
 
 const queryClient = new QueryClient();
 
