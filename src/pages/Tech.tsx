@@ -43,7 +43,7 @@ export default function Tech() {
   const [loading, setLoading] = useState<string>("");
   const [generating, setGenerating] = useState(false);
 
-  useEffect(() => { document.title = "Tech Agent · FounderOS"; }, []);
+  useEffect(() => { document.title = "Tech Agent · StackPulse"; }, []);
   useEffect(() => { refresh(); }, []);
 
   async function refresh() {

@@ -63,7 +63,7 @@ export default function Ops() {
   const [gmailOpen, setGmailOpen] = useState(false);
   const [commitRefresh, setCommitRefresh] = useState(0);
 
-  useEffect(() => { document.title = "Ops Agent · FounderOS"; }, []);
+  useEffect(() => { document.title = "Ops Agent · StackPulse"; }, []);
 
   useEffect(() => {
     (async () => {

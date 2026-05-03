@@ -43,7 +43,7 @@ export default function CalendarPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [draft, setDraft] = useState({ title: "", detail: "", priority: "moderate", date: format(new Date(), "yyyy-MM-dd"), time: "10:00" });
 
-  useEffect(() => { document.title = "Calendar · FounderOS"; }, []);
+  useEffect(() => { document.title = "Calendar · StackPulse"; }, []);
   useEffect(() => { load(); }, []);
 
   async function load() {

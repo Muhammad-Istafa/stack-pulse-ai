@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-const STORAGE_KEY = "founderos.connection";
-const INTEGRATIONS_KEY = "founderos.integrations";
+const STORAGE_KEY = "stackpulse.connection";
+const INTEGRATIONS_KEY = "stackpulse.integrations";
 
 export type Connection = {
   connected: boolean;
@@ -65,13 +65,13 @@ export function ModeProvider({ children }: { children: ReactNode }) {
   function persist(next: Connection) {
     setConnection(next);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
-    window.dispatchEvent(new CustomEvent("founderos:connection", { detail: next }));
+    window.dispatchEvent(new CustomEvent("stackpulse:connection", { detail: next }));
   }
 
   function persistIntegrations(next: Integrations) {
     setIntegrations(next);
     try { localStorage.setItem(INTEGRATIONS_KEY, JSON.stringify(next)); } catch { /* ignore */ }
-    window.dispatchEvent(new CustomEvent("founderos:integrations", { detail: next }));
+    window.dispatchEvent(new CustomEvent("stackpulse:integrations", { detail: next }));
   }
 
   function connect(data: { email: string; name?: string; scopes?: string[] }) {
