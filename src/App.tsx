@@ -24,11 +24,11 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/brief" element={<Brief />} />
-            <Route path="/ops" element={<Ops />} />
-            <Route path="/tech" element={<Tech />} />
-            <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/activity" element={<Activity />} />
+            <Route path="/brief" element={<AuthGate><Brief /></AuthGate>} />
+            <Route path="/ops" element={<AuthGate><Ops /></AuthGate>} />
+            <Route path="/tech" element={<AuthGate><Tech /></AuthGate>} />
+            <Route path="/calendar" element={<AuthGate><CalendarPage /></AuthGate>} />
+            <Route path="/activity" element={<AuthGate><Activity /></AuthGate>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
