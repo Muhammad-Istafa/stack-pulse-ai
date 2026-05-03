@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 const ObsidianLogo3D = lazy(() => import("@/components/ObsidianLogo3D"));
 
@@ -87,6 +88,7 @@ export default function Index() {
             >
               The Ops Agent
             </Link>
+            <GoogleSignInButton label="Sign in with Google" />
           </div>
         </div>
       </section>
