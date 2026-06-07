@@ -6,12 +6,17 @@ export async function logActivity(
   action: "approved" | "ignored" | "generated",
   title: string,
   detail?: string,
-) {
-  await supabase.from("activity_log").insert({
+): Promise<{ ok: boolean; error?: string }> {
+  const { error } = await supabase.from("activity_log").insert({
     device_id: getDeviceId(),
     agent,
     action,
     title,
     detail: detail ?? null,
   });
+  if (error) {
+    console.error("Activity log failed:", error.message);
+    return { ok: false, error: error.message };
+  }
+  return { ok: true };
 }

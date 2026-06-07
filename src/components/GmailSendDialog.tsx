@@ -19,7 +19,7 @@ export type GmailPayload = {
   size_kb: number;
 };
 
-type Stage = "compose" | "connecting" | "sending" | "sent";
+type Stage = "compose" | "sending" | "sent";
 
 function parseDraft(draft: string): { subject: string; body: string } {
   const m = draft.match(/^\s*Subject:\s*(.+)\s*\n([\s\S]*)$/i);
@@ -54,7 +54,6 @@ export function GmailSendDialog({
   const [subject, setSubject] = useState(parsed.subject);
   const [body, setBody] = useState(parsed.body);
   const [stage, setStage] = useState<Stage>("compose");
-  const [progress, setProgress] = useState(0);
   const [sentPayload, setSentPayload] = useState<GmailPayload | null>(null);
 
   useEffect(() => {
@@ -64,32 +63,24 @@ export function GmailSendDialog({
       setSubject(parsed.subject);
       setBody(parsed.body);
       setStage("compose");
-      setProgress(0);
       setSentPayload(null);
     }
   }, [open, defaultTo, parsed.subject, parsed.body]);
 
   async function send() {
     const start = performance.now();
-    setStage("connecting");
-    setProgress(15);
-    await new Promise(r => setTimeout(r, 450));
-    setProgress(40);
     setStage("sending");
-    await new Promise(r => setTimeout(r, 600));
-    setProgress(75);
-    await new Promise(r => setTimeout(r, 500));
-    setProgress(100);
+    await new Promise(r => setTimeout(r, 400));
 
     const latency = Math.round(performance.now() - start);
     const payload: GmailPayload = {
-      from: "paul@stackpulse.app",
+      from: "founder@stackpulse.app",
       to,
       cc: cc || undefined,
       subject,
       body,
       thread_id: `thread-${randomId(12)}`,
-      message_id: `<${randomId(20)}@mail.gmail.com>`,
+      message_id: `<${randomId(20)}@stackpulse.local>`,
       sent_at: new Date().toISOString(),
       latency_ms: latency,
       size_kb: Math.max(1, Math.round((subject.length + body.length) / 1024 * 10) / 10 || 0.4),
@@ -105,7 +96,7 @@ export function GmailSendDialog({
         <DialogHeader className="px-5 py-3 border-b border-border bg-muted/30">
           <DialogTitle className="flex items-center gap-2 text-sm">
             <Mail className="h-4 w-4 text-primary" />
-            {stage === "sent" ? "Message sent via Gmail" : "New message · Gmail"}
+            {stage === "sent" ? "Draft approved" : "Approve draft reply"}
             <Badge variant="outline" className="ml-auto text-[10px]">simulation</Badge>
           </DialogTitle>
         </DialogHeader>
@@ -113,7 +104,7 @@ export function GmailSendDialog({
         {stage !== "sent" ? (
           <>
             <div className="px-5 py-3 space-y-2 text-sm">
-              <Row label="From"><span className="text-muted-foreground">paul@stackpulse.app</span></Row>
+              <Row label="From"><span className="text-muted-foreground">founder@stackpulse.app</span></Row>
               <Row label="To"><Input value={to} onChange={e => setTo(e.target.value)} className="h-8 border-0 px-0 focus-visible:ring-0" disabled={stage !== "compose"} /></Row>
               <Row label="Cc"><Input value={cc} onChange={e => setCc(e.target.value)} placeholder="optional" className="h-8 border-0 px-0 focus-visible:ring-0" disabled={stage !== "compose"} /></Row>
               <Row label="Subject"><Input value={subject} onChange={e => setSubject(e.target.value)} className="h-8 border-0 px-0 font-medium focus-visible:ring-0" disabled={stage !== "compose"} /></Row>
@@ -122,15 +113,10 @@ export function GmailSendDialog({
               <Textarea value={body} onChange={e => setBody(e.target.value)} rows={12} className="font-sans text-sm resize-none" disabled={stage !== "compose"} />
             </div>
 
-            {stage !== "compose" && (
-              <div className="px-5 pb-3">
-                <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                  <div className="h-full bg-primary transition-all duration-300" style={{ width: `${progress}%` }} />
-                </div>
-                <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  {stage === "connecting" ? "Connecting to Gmail API…" : "Uploading message (RFC 2822)…"}
-                </div>
+            {stage === "sending" && (
+              <div className="px-5 pb-3 flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Logging approved draft…
               </div>
             )}
 
@@ -144,7 +130,7 @@ export function GmailSendDialog({
                 <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} disabled={stage !== "compose"}>Cancel</Button>
                 <Button size="sm" onClick={send} disabled={stage !== "compose" || !to.trim() || !subject.trim()}>
                   {stage === "compose" ? <Send className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />}
-                  Send
+                  Approve
                 </Button>
               </div>
             </DialogFooter>
@@ -153,7 +139,7 @@ export function GmailSendDialog({
           <div className="p-5 space-y-3">
             <div className="flex items-center gap-2 text-success">
               <CheckCircle2 className="h-5 w-5" />
-              <span className="font-medium">Delivered to Gmail outbox</span>
+              <span className="font-medium">Draft logged to activity</span>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs font-mono space-y-1">
               <KV k="message-id" v={sentPayload.message_id} />
@@ -161,11 +147,11 @@ export function GmailSendDialog({
               <KV k="to" v={sentPayload.to} />
               {sentPayload.cc && <KV k="cc" v={sentPayload.cc} />}
               <KV k="subject" v={sentPayload.subject} />
-              <KV k="sent-at" v={new Date(sentPayload.sent_at).toLocaleString()} />
+              <KV k="logged-at" v={new Date(sentPayload.sent_at).toLocaleString()} />
               <KV k="latency" v={`${sentPayload.latency_ms}ms`} />
               <KV k="size" v={`${sentPayload.size_kb}kb`} />
             </div>
-            <p className="text-xs text-muted-foreground">Full payload stored in your activity log.</p>
+            <p className="text-xs text-muted-foreground">No email was sent. This is a local simulation for review and audit.</p>
             <DialogFooter>
               <Button size="sm" variant="outline" onClick={() => onOpenChange(false)}><X className="h-4 w-4" /> Close</Button>
             </DialogFooter>

@@ -1,28 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callAI } from "../_shared/ai.ts";
+import {
+  getClientKey,
+  requireDeviceId,
+  validateAction,
+  validatePayloadSize,
+} from "../_shared/guard.ts";
+import { AI_LIMIT_MESSAGE, checkAndRecordUsage } from "../_shared/usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-const MODEL = "google/gemini-3-flash-preview";
-
-async function callAI(body: Record<string, unknown>) {
-  const apiKey = Deno.env.get("LOVABLE_API_KEY");
-  if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
-  const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model: MODEL, ...body }),
-  });
-  if (resp.status === 429) throw new Error("RATE_LIMIT");
-  if (resp.status === 402) throw new Error("PAYMENT_REQUIRED");
-  if (!resp.ok) {
-    console.error("AI gateway error", resp.status, await resp.text());
-    throw new Error("AI_ERROR");
-  }
-  return await resp.json();
-}
 
 const ok = (d: unknown) => new Response(JSON.stringify(d), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 const err = (m: string, s = 500) => new Response(JSON.stringify({ error: m }), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -237,11 +226,53 @@ async function decisionPanel({ item, analysis }: any) {
   return args ? JSON.parse(args) : { decision: "hold", confidence: 50, risk_level: "medium", rationale: "", sources: [] };
 }
 
+const ALLOWED_ACTIONS = ["feed", "sandbox", "code_impact", "migration", "ab_test", "decision_panel"] as const;
+
+function validateItemPayload(body: Record<string, unknown>): string | null {
+  const item = body.item;
+  if (!item || typeof item !== "object") return "item required";
+  const record = item as Record<string, unknown>;
+  if (typeof record.title !== "string" || record.title.length > 300) return "invalid item.title";
+  if (typeof record.summary !== "string" || record.summary.length > 3000) return "invalid item.summary";
+  return null;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return err("Method not allowed", 405);
   try {
-    const body = await req.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return err("Invalid JSON body", 400);
+    }
+
+    const actionError = validateAction(body.action, ALLOWED_ACTIONS);
+    if (actionError) return err(actionError, 400);
+
     const action = body.action as string;
+    const deviceId = body.device_id as string;
+    const deviceError = requireDeviceId(deviceId);
+    if (deviceError) return err(deviceError, 400);
+
+    const sizeError = validatePayloadSize(body);
+    if (sizeError) return err(sizeError, 400);
+
+    const clientKey = getClientKey(req, deviceId);
+    const usage = await checkAndRecordUsage(clientKey, deviceId, "tech-agent", action);
+    if (!usage.ok) {
+      return new Response(JSON.stringify({ error: AI_LIMIT_MESSAGE }), {
+        status: usage.status ?? 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action !== "feed") {
+      const itemError = validateItemPayload(body);
+      if (itemError) return err(itemError, 400);
+    }
+
     let result;
     switch (action) {
       case "feed": result = await generateFeed(); break;
@@ -253,11 +284,15 @@ serve(async (req) => {
       default: return err("Unknown action", 400);
     }
     return ok(result);
-  } catch (e: any) {
-    const msg = e?.message ?? "Unknown";
-    if (msg === "RATE_LIMIT") return err("Rate limit reached. Try again shortly.", 429);
-    if (msg === "PAYMENT_REQUIRED") return err("AI credits exhausted. Add credits in Settings → Workspace → Usage.", 402);
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "Unknown";
+    if (msg === "RATE_LIMIT") return err(AI_LIMIT_MESSAGE, 429);
+    if (msg === "PAYMENT_REQUIRED") return err(AI_LIMIT_MESSAGE, 429);
+    if (msg === "AI_ERROR" || msg.includes("No AI API key configured")) {
+      console.error("tech-agent AI error", e);
+      return err(AI_LIMIT_MESSAGE, 503);
+    }
     console.error("tech-agent error", e);
-    return err(msg);
+    return err(AI_LIMIT_MESSAGE);
   }
 });

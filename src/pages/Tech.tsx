@@ -43,7 +43,7 @@ export default function Tech() {
   const [loading, setLoading] = useState<string>("");
   const [generating, setGenerating] = useState(false);
 
-  useEffect(() => { document.title = "Tech Agent · StackPulse"; }, []);
+  useEffect(() => { document.title = "Tech Agent · Stack Pulse"; }, []);
   useEffect(() => { refresh(); }, []);
 
   async function refresh() {
@@ -58,7 +58,7 @@ export default function Tech() {
   async function generateFeed() {
     setGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke("tech-agent", { body: { action: "feed" } });
+      const { data, error } = await supabase.functions.invoke("tech-agent", { body: { action: "feed", device_id: getDeviceId() } });
       if (error || data?.error) throw new Error(data?.error ?? error?.message);
       const rows = (data.items ?? []).map((it: any) => ({ ...it, device_id: getDeviceId() }));
       const { data: inserted } = await supabase.from("tech_feed").insert(rows).select();
@@ -83,8 +83,8 @@ export default function Tech() {
     setLoading(action);
     try {
       const reqBody = action === "decision_panel"
-        ? { action, item: selected, analysis }
-        : { action, item: selected };
+        ? { action, device_id: getDeviceId(), item: selected, analysis }
+        : { action, device_id: getDeviceId(), item: selected };
       const { data, error } = await supabase.functions.invoke("tech-agent", { body: reqBody });
       if (error || data?.error) throw new Error(data?.error ?? error?.message);
 

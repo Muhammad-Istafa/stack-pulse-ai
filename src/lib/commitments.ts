@@ -17,7 +17,13 @@ export async function extractCommitmentsForEmail(email: {
   if (existing && existing.length > 0) return { extracted: 0, cached: true };
 
   const { data, error } = await supabase.functions.invoke("ops-agent", {
-    body: { action: "extract_commitments", subject: email.subject, body: email.body, sender: email.sender_name },
+    body: {
+      action: "extract_commitments",
+      device_id: getDeviceId(),
+      subject: email.subject,
+      body: email.body,
+      sender: email.sender_name,
+    },
   });
   if (error || data?.error) throw new Error(data?.error ?? error?.message);
 

@@ -63,11 +63,14 @@ export default function Ops() {
   const [gmailOpen, setGmailOpen] = useState(false);
   const [commitRefresh, setCommitRefresh] = useState(0);
 
-  useEffect(() => { document.title = "Ops Agent · StackPulse"; }, []);
+  useEffect(() => { document.title = "Ops Agent · Stack Pulse"; }, []);
 
   useEffect(() => {
     (async () => {
-      await seedIfEmpty();
+      const seed = await seedIfEmpty();
+      if (!seed.ok) {
+        toast({ title: "Database write blocked", description: seed.error ?? "Could not seed demo inbox.", variant: "destructive" });
+      }
       await refresh();
     })();
   }, []);
@@ -103,7 +106,7 @@ export default function Ops() {
 
       if (!e.ai_summary) {
         supabase.functions.invoke("ops-agent", {
-          body: { action: "summarize", subject: e.subject, body: e.body, sender: e.sender_name },
+          body: { action: "summarize", device_id: getDeviceId(), subject: e.subject, body: e.body, sender: e.sender_name },
         }).then(async ({ data }) => {
           const summary = data?.summary;
           if (!summary) return;
@@ -120,7 +123,7 @@ export default function Ops() {
       setLoading("extract");
       try {
         const { data, error } = await supabase.functions.invoke("ops-agent", {
-          body: { action: "extract", subject: e.subject, body: e.body, sender: e.sender_name },
+          body: { action: "extract", device_id: getDeviceId(), subject: e.subject, body: e.body, sender: e.sender_name },
         });
         if (error || data?.error) throw new Error(data?.error ?? error?.message);
         await supabase.from("emails").update({
@@ -142,7 +145,7 @@ export default function Ops() {
     setWorkflow(null);
     try {
       const { data: gen, error: e1 } = await supabase.functions.invoke("ops-agent", {
-        body: { action: "generate_workflow", problem, sources },
+        body: { action: "generate_workflow", device_id: getDeviceId(), problem, sources },
       });
       if (e1 || gen?.error) throw new Error(gen?.error ?? e1?.message);
       const steps = (gen.steps ?? []).map((s: any) => ({ ...s, status: "pending" })) as WorkflowStep[];
@@ -170,7 +173,7 @@ export default function Ops() {
       }
 
       const { data: ran, error: e2 } = await supabase.functions.invoke("ops-agent", {
-        body: { action: "run_workflow", steps, problem, simulate_error },
+        body: { action: "run_workflow", device_id: getDeviceId(), steps, problem, simulate_error },
       });
       if (e2 || ran?.error) throw new Error(ran?.error ?? e2?.message);
 
@@ -205,7 +208,7 @@ export default function Ops() {
       }
 
       const detail = [
-        `📧 Sent via Gmail (simulated)`,
+        `📧 Draft approved (simulation)`,
         ``,
         `From:    ${payload.from}`,
         `To:      ${payload.to}`,
@@ -220,11 +223,11 @@ export default function Ops() {
         payload.body,
       ].filter(Boolean).join("\n");
 
-      await logActivity("ops", "approved", `Gmail → ${payload.to}: ${payload.subject}`, detail);
+      await logActivity("ops", "approved", `Draft → ${payload.to}: ${payload.subject}`, detail);
 
       // Calendar suggestion
       const { data: cal } = await supabase.functions.invoke("ops-agent", {
-        body: { action: "suggest_calendar", problem: workflow.problem, output: draft },
+        body: { action: "suggest_calendar", device_id: getDeviceId(), problem: workflow.problem, output: draft },
       });
       if (cal?.create) {
         const when = new Date(Date.now() + (cal.days_from_now ?? 2) * 24 * 60 * 60 * 1000).toISOString();
@@ -238,7 +241,7 @@ export default function Ops() {
         });
         toast({ title: "Sent · calendar follow-up suggested", description: cal.title });
       } else {
-        toast({ title: "Email sent via Gmail", description: `Delivered to ${payload.to}` });
+        toast({ title: "Draft approved", description: `Logged for ${payload.to} (simulation — no email sent)` });
       }
       setWorkflow(prev => prev ? { ...prev, status: "sent" } : prev);
       setCommitRefresh(v => v + 1);

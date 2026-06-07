@@ -40,7 +40,7 @@ export default function IntegrationsDialog({ open, onOpenChange }: { open: boole
     if (!activeP) return;
     const value = account.trim() || `demo@${activeP.id}.local`;
     connectPlatform(activeP.id, value);
-    toast.success(`${activeP.name} connected`, { description: "Simulated connection — using mock data." });
+    toast.success(`${activeP.name} connected`, { description: "Demo mode — using mock data." });
     setActive(null);
     setAccount("");
   }
@@ -51,7 +51,7 @@ export default function IntegrationsDialog({ open, onOpenChange }: { open: boole
         <DialogHeader>
           <DialogTitle>Integrations</DialogTitle>
           <DialogDescription>
-            Connect platforms StackPulse uses across Ops and Tech workflows. Connections are simulated for the demo.
+            Connect platforms Stack Pulse uses across Ops and Tech workflows. Demo mode — no live OAuth.
           </DialogDescription>
         </DialogHeader>
 
@@ -106,7 +106,7 @@ export default function IntegrationsDialog({ open, onOpenChange }: { open: boole
               <label className="text-xs text-muted-foreground">{activeP.accountLabel}</label>
               <Input value={account} onChange={(e) => setAccount(e.target.value)} placeholder={activeP.accountPlaceholder} />
               <p className="text-[10px] text-muted-foreground">
-                Demo connection — no OAuth flow runs. StackPulse will treat this platform as connected and use mock data.
+                Demo mode — no OAuth runs. Stack Pulse treats this platform as connected and uses mock data.
               </p>
             </div>
             <div className="flex gap-2 justify-end">

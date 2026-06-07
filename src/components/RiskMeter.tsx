@@ -68,7 +68,7 @@ export default function RiskMeter() {
     setLoadingExp(true);
     try {
       const { data } = await supabase.functions.invoke("ops-agent", {
-        body: { action: "explain_risk", score, signals: s },
+        body: { action: "explain_risk", device_id: getDeviceId(), score, signals: s },
       });
       setExplanation(data?.explanation ?? "");
     } catch {

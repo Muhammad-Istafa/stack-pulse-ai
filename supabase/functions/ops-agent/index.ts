@@ -1,29 +1,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callAI } from "../_shared/ai.ts";
+import {
+  getClientKey,
+  requireDeviceId,
+  validateAction,
+  validateEmailFields,
+  validatePayloadSize,
+  validatePromptField,
+  MAX_WORKFLOW_STEPS,
+} from "../_shared/guard.ts";
+import { AI_LIMIT_MESSAGE, checkAndRecordUsage } from "../_shared/usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-const MODEL = "google/gemini-3-flash-preview";
-
-async function callAI(body: Record<string, unknown>) {
-  const apiKey = Deno.env.get("LOVABLE_API_KEY");
-  if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
-  const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model: MODEL, ...body }),
-  });
-  if (resp.status === 429) throw new Error("RATE_LIMIT");
-  if (resp.status === 402) throw new Error("PAYMENT_REQUIRED");
-  if (!resp.ok) {
-    const t = await resp.text();
-    console.error("AI gateway error", resp.status, t);
-    throw new Error("AI_ERROR");
-  }
-  return await resp.json();
-}
 
 function err(msg: string, status = 500) {
   return new Response(JSON.stringify({ error: msg }), {
@@ -267,7 +258,7 @@ async function explainRisk({ score, signals }: any) {
       {
         role: "system",
         content:
-          "You are the StackPulse Risk Analyst. In 1-2 sentences, explain why the startup risk score is what it is and what the founder should do next. Be direct, calm, specific. No emojis. No 'as an AI'.",
+          "You are the Stack Pulse Risk Analyst. In 1-2 sentences, explain why the startup risk score is what it is and what the founder should do next. Be direct, calm, specific. No emojis. No 'as an AI'.",
       },
       { role: "user", content: `Score: ${score}/100\nSignals:\n${JSON.stringify(signals, null, 2)}` },
     ],
@@ -304,11 +295,64 @@ async function suggestCalendar({ problem, output }: any) {
   return args ? JSON.parse(args) : { create: false };
 }
 
+const ALLOWED_ACTIONS = [
+  "classify", "extract", "summarize", "extract_commitments", "explain_risk",
+  "generate_workflow", "run_workflow", "suggest_calendar",
+] as const;
+
+function validatePayload(action: string, body: Record<string, unknown>): string | null {
+  const emailActions = ["classify", "extract", "summarize", "extract_commitments"];
+  if (emailActions.includes(action)) {
+    const fieldError = validateEmailFields(body);
+    if (fieldError) return fieldError;
+  }
+  if (action === "generate_workflow" || action === "run_workflow" || action === "suggest_calendar") {
+    const fieldError = validatePromptField(body, "problem");
+    if (fieldError && action !== "suggest_calendar") return fieldError;
+    if (action === "run_workflow" && !Array.isArray(body.steps)) return "steps required";
+    if (action === "run_workflow" && (body.steps as unknown[]).length > MAX_WORKFLOW_STEPS) return "too many workflow steps";
+  }
+  if (action === "explain_risk") {
+    const score = body.score;
+    if (typeof score !== "number" || score < 0 || score > 100) return "invalid risk score";
+  }
+  return null;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return err("Method not allowed", 405);
   try {
-    const body = await req.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return err("Invalid JSON body", 400);
+    }
+
+    const actionError = validateAction(body.action, ALLOWED_ACTIONS);
+    if (actionError) return err(actionError, 400);
+
     const action = body.action as string;
+    const deviceId = body.device_id as string;
+    const deviceError = requireDeviceId(deviceId);
+    if (deviceError) return err(deviceError, 400);
+
+    const sizeError = validatePayloadSize(body);
+    if (sizeError) return err(sizeError, 400);
+
+    const clientKey = getClientKey(req, deviceId);
+    const usage = await checkAndRecordUsage(clientKey, deviceId, "ops-agent", action);
+    if (!usage.ok) {
+      return new Response(JSON.stringify({ error: AI_LIMIT_MESSAGE }), {
+        status: usage.status ?? 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const payloadError = validatePayload(action, body);
+    if (payloadError) return err(payloadError, 400);
+
     let result;
     switch (action) {
       case "classify": result = await classifyEmail(body); break;
@@ -322,11 +366,15 @@ serve(async (req) => {
       default: return err("Unknown action", 400);
     }
     return ok(result);
-  } catch (e: any) {
-    const msg = e?.message ?? "Unknown";
-    if (msg === "RATE_LIMIT") return err("Rate limit reached. Try again shortly.", 429);
-    if (msg === "PAYMENT_REQUIRED") return err("AI credits exhausted. Add credits in Settings → Workspace → Usage.", 402);
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "Unknown";
+    if (msg === "RATE_LIMIT") return err(AI_LIMIT_MESSAGE, 429);
+    if (msg === "PAYMENT_REQUIRED") return err(AI_LIMIT_MESSAGE, 429);
+    if (msg === "AI_ERROR" || msg.includes("No AI API key configured")) {
+      console.error("ops-agent AI error", e);
+      return err(AI_LIMIT_MESSAGE, 503);
+    }
     console.error("ops-agent error", e);
-    return err(msg);
+    return err(AI_LIMIT_MESSAGE);
   }
 });

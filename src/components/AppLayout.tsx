@@ -1,12 +1,9 @@
 import { ReactNode, useState, lazy, Suspense } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { LayoutDashboard, Briefcase, Cpu, Activity, Calendar as CalendarIcon, Plug, FlaskConical, Check, Boxes } from "lucide-react";
+import { LayoutDashboard, Briefcase, Cpu, Activity, Calendar as CalendarIcon, FlaskConical, Boxes } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMode } from "@/lib/mode";
-import ConnectGoogleDialog from "@/components/ConnectGoogleDialog";
 import IntegrationsDialog from "@/components/IntegrationsDialog";
-import UserStatus from "@/components/UserStatus";
-import OnboardingProgress from "@/components/OnboardingProgress";
 
 const ObsidianLogo3D = lazy(() => import("@/components/ObsidianLogo3D"));
 
@@ -19,8 +16,7 @@ const NAV = [
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
-  const { connection, integrations } = useMode();
-  const [open, setOpen] = useState(false);
+  const { integrations } = useMode();
   const [intOpen, setIntOpen] = useState(false);
   const connectedCount = Object.values(integrations).filter(i => i.connected).length;
 
@@ -32,7 +28,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <ObsidianLogo3D size={36} interactive={false} />
           </Suspense>
           <div className="leading-tight">
-            <div className="font-semibold tracking-tight">StackPulse</div>
+            <div className="font-semibold tracking-tight">Stack Pulse</div>
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">AI co-founder</div>
           </div>
         </Link>
@@ -55,38 +51,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           ))}
         </nav>
 
-        {/* Mode card */}
         <div className="p-3 border-t border-sidebar-border space-y-2">
-          <UserStatus />
-          <OnboardingProgress />
-          {connection.connected ? (
-            <button
-              onClick={() => setOpen(true)}
-              className="w-full text-left rounded-md border border-success/30 bg-success/10 px-2.5 py-2 hover:bg-success/15 transition-colors"
-            >
-              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-success">
-                <Check className="h-3 w-3" /> Connected
-              </div>
-              <div className="text-xs font-medium truncate mt-0.5">{connection.email}</div>
-              <div className="text-[10px] text-muted-foreground">Live data · click to manage</div>
-            </button>
-          ) : (
-            <button
-              onClick={() => setOpen(true)}
-              className="w-full text-left rounded-md border border-warning/30 bg-warning/5 px-2.5 py-2 hover:bg-warning/10 transition-colors"
-            >
-              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-warning">
-                <FlaskConical className="h-3 w-3" /> Simulation mode
-              </div>
-              <div className="text-xs font-medium mt-0.5">Using mock dataset</div>
-              <div className="text-[10px] text-muted-foreground">Connect Google for live data</div>
-            </button>
-          )}
-          {!connection.connected && (
-            <Button size="sm" variant="outline" className="w-full" onClick={() => setOpen(true)}>
-              <Plug className="h-3.5 w-3.5" /> Connect Google
-            </Button>
-          )}
+          <div className="w-full rounded-md border border-warning/30 bg-warning/5 px-2.5 py-2">
+            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-warning">
+              <FlaskConical className="h-3 w-3" /> Simulation mode
+            </div>
+            <div className="text-xs font-medium mt-0.5">Using mock dataset</div>
+            <div className="text-[10px] text-muted-foreground">All data is local to this browser</div>
+          </div>
           <Button size="sm" variant="ghost" className="w-full justify-start" onClick={() => setIntOpen(true)}>
             <Boxes className="h-3.5 w-3.5" /> Integrations
             <span className="ml-auto text-[10px] text-muted-foreground">{connectedCount}/10</span>
@@ -102,7 +74,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <main className="flex-1 overflow-auto">{children}</main>
       </div>
 
-      <ConnectGoogleDialog open={open} onOpenChange={setOpen} />
       <IntegrationsDialog open={intOpen} onOpenChange={setIntOpen} />
     </div>
   );

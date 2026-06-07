@@ -78,15 +78,21 @@ const EMAILS = [
   },
 ];
 
-export async function seedIfEmpty() {
-  if (typeof window === "undefined") return;
-  if (localStorage.getItem(SEED_FLAG)) return;
+export async function seedIfEmpty(): Promise<{ ok: boolean; error?: string }> {
+  if (typeof window === "undefined") return { ok: true };
+  if (localStorage.getItem(SEED_FLAG)) return { ok: true };
+
   const device_id = getDeviceId();
 
-  const { count } = await supabase
+  const { count, error: countError } = await supabase
     .from("emails")
     .select("id", { count: "exact", head: true })
     .eq("device_id", device_id);
+
+  if (countError) {
+    console.error("Seed check failed:", countError.message);
+    return { ok: false, error: countError.message };
+  }
 
   if ((count ?? 0) === 0) {
     const now = Date.now();
@@ -95,7 +101,13 @@ export async function seedIfEmpty() {
       device_id,
       received_at: new Date(now - i * 1000 * 60 * 47).toISOString(),
     }));
-    await supabase.from("emails").insert(rows);
+    const { error: insertError } = await supabase.from("emails").insert(rows);
+    if (insertError) {
+      console.error("Seed insert failed:", insertError.message);
+      return { ok: false, error: insertError.message };
+    }
   }
+
   localStorage.setItem(SEED_FLAG, "1");
+  return { ok: true };
 }

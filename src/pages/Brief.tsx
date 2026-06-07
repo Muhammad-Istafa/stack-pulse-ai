@@ -24,11 +24,12 @@ export default function Brief() {
   const [feed, setFeed] = useState<FeedRow[]>([]);
   const [events, setEvents] = useState<CalEvent[]>([]);
 
-  useEffect(() => { document.title = "Daily Brief · StackPulse"; }, []);
+  useEffect(() => { document.title = "Daily Brief · Stack Pulse"; }, []);
 
   useEffect(() => {
     (async () => {
-      await seedIfEmpty();
+      const seed = await seedIfEmpty();
+      if (!seed.ok) console.error("Seed failed:", seed.error);
       const did = getDeviceId();
       const [a, e, f, c] = await Promise.all([
         supabase.from("activity_log").select("*").eq("device_id", did).order("created_at", { ascending: false }).limit(6),
